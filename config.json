@@ -1,0 +1,22 @@
+{
+    "global": {
+        "devkitPPCPath": {
+            "win32": "C:/devkitPro/devkitPPC/bin/",
+            "default": "/opt/devkitpro/devkitPPC/bin/"
+        }
+    },
+    "projects": [
+        {
+            "name": "NewerSMBW",
+            "path": "../NewerProject.yaml",
+            "buildFolder": "Build",
+            "outputFolder": null,
+            "generatePAL": true,
+            "generateNTSC": true,
+            "generateJP": true,
+            "generateKR": true,
+            "generateTW": true,
+            "simpleLogs": true
+        }
+    ]
+}

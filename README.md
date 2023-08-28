@@ -70,17 +70,17 @@ You can edit it to change the starting YAML file, the compiler mode, the compile
 
 Doing a lot of NSMBW modding, I found myself using Kamek a lot as it is used to compile the code. However, I found it very annoying to use as it for debugging for multiple reasons:
 - No colors, so it's hard to read
-- When using the fasthack option, it doesn't show the correct line number of the errors / warnings (it shows the line number of the fasthack instead, which is about 50 000 lines so good luck finding scrolling to the correct line, even with the search function)
+- When using the fasthack option, it doesn't show the correct line number of the errors / warnings (it shows the line number of the fasthack instead, which is about 50 000 lines so good luck scrolling to the correct line, even with the search function)
 - It doesn't show the file name of the errors / warnings
 - No spacing, everything is cramped together
 - When you have an error, it generates so much garbage that it's hard to find the error itself, because it's at the very top of the log
 
 Okay, so if this didn't convince you, let me tell you a short story.
 
-So one day I just wanted to test how much garbage the compiler gives, so I just remove the `;` from a file called `boss.h`, and the rest of the code had no error. Now, if I compile this, we should in theory have a single error.
+So one day I just wanted to test how much garbage the compiler gives, so I just remove a single `;` from a file called `boss.h`, and the rest of the code had no error. Now, if I compile this, we should in theory have a single error.
 
 You know what, it threw me **1041 errors, in 24 different files**.
-Like wtf, just for a single missing `;` ? And the worst part is that represents 4 243 lines of garbage, and the correct error is at the very top of the log, under a lot of warnings, so good luck finding it on the command line with no color.
+Like wtf, just for a single missing `;` ? And the worst part is that this represents 4 243 lines of garbage, and the correct error is at the very top of the log, under a lot of warnings, so good luck finding it on the command line with no color.
 
 By the way, if you want to check the output for yourself, here it is, with all the warnings and the top of the log removed for your mental health: [error.log](https://raw.githubusercontent.com/Synell/Assets/main/Sparkamek/files/error.log).
 
@@ -90,13 +90,9 @@ And here is the output of Sparkamek for the same error:
 Much better, right?
 
 
-### So, what does Sparkamek do?
+### So, what does Sparkamek Terminal do?
 
-Sparkamek is a GUI for Kamek, so it does the same thing as Kamek, but with a lot of improvements. It also allows you to compile a custom loader for your game with improved features, like with the Kamek one.
-
-You can also create and edit the Reggie Next (the level editor app) spritedata file with ease, which is use to create patches for the it.
-
-And finally, you can also create and edit the Riivolution file with ease, which is used to create patches for the game.
+Sparkamek is a improved Terminal for Kamek. It has colors, spacing, the correct line number for the errors / warnings, the file name of the errors / warnings, and it doesn't generate a lot of garbage.
 
 
 ## Usage
@@ -107,6 +103,6 @@ With this tool, you can compile the code for the game. The compiler has 2 modes:
 
 The complete mode is the same as the Kamek one, but with colors, spacing and the correct line number for the errors / warnings whereas the simple mode is a lot more compact and only shows essential information.
 
-To compile, just run `main.py` when running from source code or the `Sparkamek` executable when running from a release.
+To compile, just run `main.py` when running from source code or the `Sparkamek Terminal` executable when running from a release.
 
 *You can start it from anywhere, it will automatically set the current directory to the `tools` folder of your Kamek project as long as you set the `path` in the `config.json` file to the `NewerProject.yaml` file (or whatever it's called) of your Kamek project.*

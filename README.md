@@ -1,4 +1,4 @@
-<h1 align="center"><img src="https://raw.githubusercontent.com/Synell/Sparkamek-Terminal/main/data/icons/Sparkamek.svg" width="32" align="center" /> Sparkamek Terminal: Add Code to NSMBW with Ease</h1>
+<h1 align="center"><img src="https://raw.githubusercontent.com/Synell/Sparkamek/main/data/icons/Sparkamek.svg" width="32" align="center" /> Sparkamek Terminal: Add Code to NSMBW with Ease</h1>
 <p align="center">
   <a href="https://www.python.org/downloads/">
     <img alt="Python 3.11" src="https://img.shields.io/badge/Python-3.11-blue" />

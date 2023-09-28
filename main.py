@@ -91,8 +91,8 @@ def main():
 
         if not os.path.exists(project['path']):
             print(format_msg(f'Unable to find path for project {project["name"]}', LogType.Error))
-            os.system('bash -c \'read -s -n 1 -p "Press any key to continue..."\'')
-            os.system('clear')
+            press_any_key()
+            clear()
             break
 
         worker = CompilerWorker(

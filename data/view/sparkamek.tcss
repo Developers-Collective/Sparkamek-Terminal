@@ -1,0 +1,38 @@
+Screen {
+    align: center middle;
+}
+
+#title {
+    width: 100%;
+    text-align: center;
+}
+
+#root {
+    padding: 2;
+    height: 100%;
+    width: 100%;
+}
+
+#list {
+    width: 100%;
+    min-height: 70%;
+    align: center middle;
+}
+
+#projects {
+    width: 100%;
+    height: 100%;
+    align: center middle;
+}
+
+Button {
+    margin: 2;
+    text-align: center;
+    width: 40%;
+}
+
+#buttons {
+    width: 100%;
+    layout: horizontal;
+    align: center middle;
+}

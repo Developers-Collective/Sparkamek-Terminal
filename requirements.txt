@@ -1,2 +1,2 @@
 psutil==5.9.5
-pick==2.2.0
+textual==0.38.1

@@ -57,6 +57,10 @@ class CompilerWorker:
     def run(self) -> None:
         self.log_info_all('Starting compilation...', False)
 
+        if not os.path.isfile(self._project_full_path):
+            self.log_error(f'Cannot find project file at "{self._project_full_path}"', False)
+            return self.error.emit(f'Cannot find project file at "{self._project_full_path}"')
+
         with open(self._project_full_path, 'r', encoding = 'utf-8') as f:
             project_data = yaml.safe_load(f)
 

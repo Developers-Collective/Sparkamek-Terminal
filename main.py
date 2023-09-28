@@ -1,18 +1,22 @@
+#----------------------------------------------------------------------
+
+    # Libraries
+import os, colorama, json, sys
 from data.CompilerWorker import CompilerWorker
 from data.LogType import LogType
-import colorama, sys, os, json, pick
+from data.view import *
+#----------------------------------------------------------------------
 
-
-
+    # Setup
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 colorama.init(autoreset = True)
 
 neutral_color = colorama.Fore.WHITE
 bracket_color = colorama.Fore.LIGHTBLACK_EX
 simple_logs: bool = False
+#----------------------------------------------------------------------
 
-
-
+    # Functions
 def format_msg(msg: str, log_type: LogType, invisible: bool = False) -> str:
     l = log_type.name
     if invisible:
@@ -30,14 +34,20 @@ def log_simple(msg: str, log_type: LogType, invisible: bool = False) -> None:
 def log_complete(msg: str, log_type: LogType, invisible: bool = False) -> None:
     if not simple_logs: print(format_msg(msg, log_type, invisible).replace('&nbsp;', ' '))
 
+def press_any_key() -> None:
+    os.system('bash -c \'read -s -n 1 -p "Press any key to continue..."\'')
 
+def clear() -> None:
+    os.system('clear')
+#----------------------------------------------------------------------
 
+    # Main
 def main():
     global simple_logs
 
     if not os.path.isfile('./config.json'):
         print(format_msg('No config.json found', LogType.Error))
-        input('Press enter to exit...')
+        press_any_key()
         return
 
     with open('./config.json', 'r', encoding = 'utf8') as f:
@@ -53,31 +63,29 @@ def main():
         case _:
             devkitppc_path = global_config['devkitPPCPath']['default']
 
-    assert (devkitppc_path is not None and os.path.isdir(devkitppc_path)), 'Unable to find devkitPPC path. Please set it manually in config.json'
+    if not (devkitppc_path is not None and os.path.isdir(devkitppc_path)):
+        print(format_msg('Unable to find devkitPPC path. Please set it manually in config.json', LogType.Error))
+        press_any_key()
+        return
 
     projects: list[dict] = config['projects']
 
     if len(projects) == 0:
         print(format_msg('No projects found in config.json', LogType.Error))
-        input('Press enter to exit...')
+        press_any_key()
         return
 
-    option = ''
-    index = 0
-    options = [f'{project["name"]}' for project in projects] + ['[Exit]']
-    show_menu = len(options) > 2
+    options = [f'{project["name"]}' for project in projects]
+
+    selected_id = 0
 
     while True:
-        if (show_menu):
-            option, index = pick.pick(
-                options,
-                '================<( Select a project to compile )>================\n       (Use arrow keys to navigate, press enter to select)',
-                indicator = f'>',
-                default_index = index
-            )
-            if option == '[Exit]': break
+        app = ChoiceWindow(projects = options, selected_id = selected_id)
+        selected_id = app.run()
+        if selected_id is None: break
+        clear()
 
-        project = projects[index]
+        project = projects[selected_id]
 
         simple_logs = project['simpleLogs']
 
@@ -89,12 +97,9 @@ def main():
         worker.log_complete.connect(log_complete)
         worker.run()
 
-        show_menu = True
+        press_any_key()
+        clear()
 
-        os.system('bash -c \'read -s -n 1 -p "Press any key to continue..."\'')
-        os.system('clear')
-
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
+#----------------------------------------------------------------------

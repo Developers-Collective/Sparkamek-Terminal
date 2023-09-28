@@ -81,6 +81,12 @@ def main():
 
         simple_logs = project['simpleLogs']
 
+        if not os.path.exists(project['path']):
+            print(format_msg(f'Unable to find path for project {project["name"]}', LogType.Error))
+            os.system('bash -c \'read -s -n 1 -p "Press any key to continue..."\'')
+            os.system('clear')
+            break
+
         worker = CompilerWorker(
             data = project,
             devkitppc_path = devkitppc_path

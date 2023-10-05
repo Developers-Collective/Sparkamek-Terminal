@@ -58,6 +58,10 @@ class ChoiceWindow(App):
     def _select_project(self, event: OptionList.OptionSelected) -> None:
         self._selected_id = event.option.id
 
+    @on(OptionList.OptionHighlighted, '#projects')
+    def _select_project(self, event: OptionList.OptionHighlighted) -> None:
+        self._selected_id = event.option.id
+
     @on(Button.Pressed, '#compile')
     def _compile(self, event: Button.Pressed) -> None:
         self.exit(result = self._selected_id)

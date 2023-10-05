@@ -521,6 +521,8 @@ class KamekBuilder:
                     error_val = p.poll()
                     os.chdir(cwd)
 
+                    self._filter_compilation_output(output)
+
                 except:
                     os.chdir(cwd)
                     raise ProjectException('An error occured while calling the compiler. Please make sure CodeWarrior is installed correctly into the tools folder.', LogType.Error)

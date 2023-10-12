@@ -432,6 +432,7 @@ class KamekBuilder:
             as_command = ['%smwasmeppc.exe' % self._controller.config.mw_path, '-I.', '-I-', '-I.', '-nostdinc', '-proc', 'gekko', '-d', '__MWERKS__']
 
             try:
+                if isinstance(self._config.get('defines'), dict): self._config['defines'] = list(self._config['defines'].keys())
                 for d in self._config.get('defines', []) + self.project.data.get('defines', []):
                     cc_command.append('-d')
                     cc_command.append(d)
@@ -496,8 +497,16 @@ class KamekBuilder:
 
                     elif sourcefile.endswith('.cpp') and self._controller.config.fast_hack:
                         fast_cpp.write('//\n// [Fasthack File Info] %s\n//\n\n' % sourcefile)
-                        with open(f'{self._controller.cwd}/{sourcefile}', 'r', encoding = 'utf8') as sf:
-                            fast_cpp.write(sf.read())
+                        try:
+                            with open(f'{self._controller.cwd}/{sourcefile}', 'r', encoding = 'utf8') as sf:
+                                fast_cpp.write(sf.read())
+
+                        except UnicodeError as e:
+                            raise ProjectException(f'{sourcefile} >> Please use UTF-8 encoding for your source files as using multiple encodings can mess up CodeWarrior.', LogType.Error)
+
+                        except Exception as e:
+                            raise ProjectException(f'{sourcefile} >> {e}', LogType.Error)
+
                         fast_cpp.write('\n')
                         continue
                     else:
@@ -523,9 +532,9 @@ class KamekBuilder:
 
                     self._filter_compilation_output(output)
 
-                except:
+                except Exception as e:
                     os.chdir(cwd)
-                    raise ProjectException('An error occured while calling the compiler. Please make sure CodeWarrior is installed correctly into the tools folder.', LogType.Error)
+                    raise ProjectException(f'An error occured while calling the compiler.\nPlease make sure CodeWarrior is installed correctly into the tools folder.\nIf it\'s installed correctly, here is the error:\n{e}', LogType.Error)
                 
                 if error_val != 0:
                     if 'Driver Error' in output:
@@ -663,9 +672,14 @@ class KamekBuilder:
         self._controller.log_info('%s/%s/%s-c++filt' % (self._controller.config.filt_path, opsys, self._controller.config.gcc_type))
 
         cwd = os.getcwd()
-        os.chdir(self._controller.cwd)
-        p = subprocess.Popen('%s/%s/%s-c++filt' % (self._controller.config.filt_path, opsys, self._controller.config.gcc_type), stdin = subprocess.PIPE, stdout = subprocess.PIPE)
-        os.chdir(cwd)
+        try:
+            os.chdir(self._controller.cwd)
+            p = subprocess.Popen('%s/%s/%s-c++filt' % (self._controller.config.filt_path, opsys, self._controller.config.gcc_type), stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+            os.chdir(cwd)
+
+        except Exception as e:
+            os.chdir(cwd)
+            raise ProjectException(f'An error occured while calling c++filt.\nPlease make sure c++filt is installed correctly into the tools folder.\nIf it\'s installed correctly, here is the error:\n{e}', LogType.Error)
 
         symbol_name_list = [sym[1] for sym in self._symbols]
         filt_result = p.communicate('\n'.join(symbol_name_list).encode('utf-8'))
@@ -832,7 +846,7 @@ class KamekController:
 
     def _read_configs(self, config_path: str) -> dict:
         with open(config_path, 'r') as f:
-                data = f.read()
+            data = f.read()
 
         return yaml.safe_load(data)
 

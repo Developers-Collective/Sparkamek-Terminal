@@ -101,8 +101,16 @@ class CompilerWorker:
         try: self._address_mapper_controller.run()
 
         except ProjectException as e:
-            self.log_error(e.msg.replace('\n', '<br/>'), False)
+            self.log_error(e.msg, False)
             return self.error.emit(e.msg)
+
+
+        cw_path = ''
+
+        for path in Path(self._cwd).glob('**/mwcceppc*'):
+            if not path.is_file(): continue
+            cw_path = str(path.parent.relative_to(self._cwd)) + '/'
+            break
 
 
         self._kamek_controller.set_config( # todo: get from settings (maybe?)
@@ -112,7 +120,7 @@ class CompilerWorker:
                 use_mw = True,
                 gcc_path = self._devkitppc_path,
                 gcc_type = 'powerpc-eabi',
-                mw_path = 'tools/cw/',
+                mw_path = cw_path if cw_path else 'tools/cw/',
                 filt_path = 'tools/c++filt/',
                 fast_hack = True,
                 **kamekopts
@@ -189,31 +197,55 @@ class CompilerWorker:
         self.log_info('&nbsp;', True)
 
         if self._data.get('generatePAL', None):
-            self.log_info('Renaming PAL files...', False)
-            self._copy_files('pal', 'EU_1')
-            self._copy_files('pal2', 'EU_2')
+            try:
+                self.log_info('Renaming PAL files...', False)
+                self._copy_files('pal', 'EU_1')
+                self._copy_files('pal2', 'EU_2')
+
+            except FileNotFoundError as e:
+                self.log_warning(f'Cannot find PAL files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
 
         if self._data.get('generateNTSC', None):
-            self.log_info('Renaming NTSC files...', False)
-            self._copy_files('ntsc', 'US_1')
-            self._copy_files('ntsc2', 'US_2')
+            try:
+                self.log_info('Renaming NTSC files...', False)
+                self._copy_files('ntsc', 'US_1')
+                self._copy_files('ntsc2', 'US_2')
+
+            except FileNotFoundError as e:
+                self.log_warning(f'Cannot find NTSC files ({os.path.basename(e.filename)}). Did you forget add them to the compilation config?', False)
 
         if self._data.get('generateJP', None):
-            self.log_info('Renaming JP files...', False)
-            self._copy_files('jpn', 'JP_1')
-            self._copy_files('jpn2', 'JP_2')
+            try:
+                self.log_info('Renaming JP files...', False)
+                self._copy_files('jpn', 'JP_1')
+                self._copy_files('jpn2', 'JP_2')
+
+            except FileNotFoundError as e:
+                self.log_warning(f'Cannot find JP files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
 
         if self._data.get('generateKR', None):
-            self.log_info('Renaming KR files...', False)
-            self._copy_files('kor', 'KR_3')
+            try:
+                self.log_info('Renaming KR files...', False)
+                self._copy_files('kor', 'KR_3')
+
+            except FileNotFoundError as e:
+                self.log_warning(f'Cannot find KR files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
 
         if self._data.get('generateTW', None):
-            self.log_info('Renaming TW files...', False)
-            self._copy_files('twn', 'TW_4')
+            try:
+                self.log_info('Renaming TW files...', False)
+                self._copy_files('twn', 'TW_4')
+
+            except FileNotFoundError as e:
+                self.log_warning(f'Cannot find TW files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
 
         if self._data.get('generateCH', None):
-            self.log_info('Renaming CH files...', False)
-            self._copy_files('chn', 'CN_5')
+            try:
+                self.log_info('Renaming CH files...', False)
+                self._copy_files('chn', 'CN_5')
+
+            except FileNotFoundError as e:
+                self.log_warning(f'Cannot find CH files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
 
 
         if missing_symbols:

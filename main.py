@@ -47,7 +47,7 @@ def main():
     global simple_logs
 
     if not os.path.isfile('./config.json'):
-        print(format_msg('No config.json found', LogType.Error))
+        print(format_msg('Unable to find the config.json file. Please make sure it is in the same directory as this program.\nIf you don\'t have one yet, you can use the config-sample.json file as a template.', LogType.Error))
         press_any_key()
         return
 

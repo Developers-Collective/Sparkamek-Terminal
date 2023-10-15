@@ -2,6 +2,7 @@
 
     # Libraries
 import os, colorama, json, sys
+from textual import *
 from data.CompilerWorker import CompilerWorker
 from data.LogType import LogType
 from data.view import *

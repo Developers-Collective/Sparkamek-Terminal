@@ -14,6 +14,12 @@ from ..ProjectException import ProjectException
 from ..Signal import Signal
 #----------------------------------------------------------------------
 
+#   Setup
+startupinfo = subprocess.STARTUPINFO()
+startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+startupinfo.wShowWindow = subprocess.SW_HIDE
+#----------------------------------------------------------------------
+
     # Class
 @dataclasses.dataclass
 class KamekConfig:
@@ -524,8 +530,7 @@ class KamekBuilder:
 
                 try:
                     os.chdir(self._controller.cwd)
-                    # error_val = subprocess.call(new_command, stdout = subprocess.PIPE)
-                    p = subprocess.Popen(new_command, stdout = subprocess.PIPE)
+                    p = subprocess.Popen(new_command, stdout = subprocess.PIPE, startupinfo = startupinfo)
                     output = p.communicate()[0].decode('utf-8')
                     error_val = p.poll()
                     os.chdir(cwd)
@@ -557,7 +562,7 @@ class KamekBuilder:
 
             cwd = os.getcwd()
             os.chdir(self._controller.cwd)
-            p = subprocess.Popen(new_command, stdout = subprocess.PIPE)
+            p = subprocess.Popen(new_command, stdout = subprocess.PIPE, startupinfo = startupinfo)
             output = p.communicate()[0].decode('utf-8')
             error_val = p.poll()
             os.chdir(cwd)
@@ -610,7 +615,7 @@ class KamekBuilder:
 
         cwd = os.getcwd()
         os.chdir(self._controller.cwd)
-        error_val = subprocess.call(ld_command)
+        error_val = subprocess.call(ld_command, startupinfo = startupinfo)
         os.chdir(cwd)
 
         if error_val != 0:
@@ -674,7 +679,7 @@ class KamekBuilder:
         cwd = os.getcwd()
         try:
             os.chdir(self._controller.cwd)
-            p = subprocess.Popen('%s/%s/%s-c++filt' % (self._controller.config.filt_path, opsys, self._controller.config.gcc_type), stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+            p = subprocess.Popen('%s/%s/%s-c++filt' % (self._controller.config.filt_path, opsys, self._controller.config.gcc_type), stdin = subprocess.PIPE, stdout = subprocess.PIPE, startupinfo = startupinfo)
             os.chdir(cwd)
 
         except Exception as e:

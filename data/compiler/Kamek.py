@@ -532,7 +532,7 @@ class KamekBuilder:
 
                 try:
                     os.chdir(self._controller.cwd)
-                    p = subprocess.Popen(new_command, stdout = subprocess.PIPE, *startupinfo)
+                    p = subprocess.Popen(new_command, stdout = subprocess.PIPE, **startupinfo)
                     output = p.communicate()[0].decode('utf-8')
                     error_val = p.poll()
                     os.chdir(cwd)
@@ -564,7 +564,7 @@ class KamekBuilder:
 
             cwd = os.getcwd()
             os.chdir(self._controller.cwd)
-            p = subprocess.Popen(new_command, stdout = subprocess.PIPE, *startupinfo)
+            p = subprocess.Popen(new_command, stdout = subprocess.PIPE, **startupinfo)
             output = p.communicate()[0].decode('utf-8')
             error_val = p.poll()
             os.chdir(cwd)
@@ -617,7 +617,7 @@ class KamekBuilder:
 
         cwd = os.getcwd()
         os.chdir(self._controller.cwd)
-        error_val = subprocess.call(ld_command, *startupinfo)
+        error_val = subprocess.call(ld_command, **startupinfo)
         os.chdir(cwd)
 
         if error_val != 0:
@@ -681,7 +681,7 @@ class KamekBuilder:
         cwd = os.getcwd()
         try:
             os.chdir(self._controller.cwd)
-            p = subprocess.Popen('%s/%s/%s-c++filt' % (self._controller.config.filt_path, opsys, self._controller.config.gcc_type), stdin = subprocess.PIPE, stdout = subprocess.PIPE, *startupinfo)
+            p = subprocess.Popen('%s/%s/%s-c++filt' % (self._controller.config.filt_path, opsys, self._controller.config.gcc_type), stdin = subprocess.PIPE, stdout = subprocess.PIPE, **startupinfo)
             os.chdir(cwd)
 
         except Exception as e:

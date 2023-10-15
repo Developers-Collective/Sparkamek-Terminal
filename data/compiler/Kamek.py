@@ -241,7 +241,7 @@ class KamekBuilder:
 
     def _set_config(self, config) -> None:
         self._config = config
-        self._controller.log_info('&nbsp;', True)
+        self._controller.log_info_all('&nbsp;', True)
         self._controller.log_info_all('Building for configuration: ' + config['friendly_name'])
 
         self.config_short_name = config['short_name']

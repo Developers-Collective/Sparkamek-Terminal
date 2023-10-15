@@ -9,7 +9,7 @@ from data.view import *
 #----------------------------------------------------------------------
 
     # Setup
-os.chdir(os.path.dirname(os.path.realpath(__file__)))
+os.chdir(os.path.dirname(os.path.abspath(__file__ if sys.argv[0].endswith('.py') else sys.executable)))
 colorama.init(autoreset = True)
 
 neutral_color = colorama.Fore.WHITE

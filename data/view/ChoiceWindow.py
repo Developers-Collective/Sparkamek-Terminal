@@ -27,7 +27,7 @@ class ChoiceWindow(App):
         self._selected_id = selected_id
         self._list = None
 
-        self.title = 'Sparkamek Terminal | Version: Experimental • Build: 07e7d473'
+        self.title = 'Sparkamek Terminal | Version: Experimental • Build: 07e7d494'
 
     def compose(self) -> ComposeResult:
         yield Header()

@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import os, yaml, sys, difflib, traceback, colorama
+import os, yaml, sys, difflib, colorama, timeit
 from pathlib import Path
 
 from data.LogType import LogType
@@ -56,6 +56,8 @@ class CompilerWorker:
 
     def run(self) -> None:
         self.log_info_all('Starting compilation...', False)
+
+        start_time = timeit.default_timer()
 
         if not os.path.isfile(self._project_full_path):
             self.log_error(f'Cannot find project file at "{self._project_full_path}"', False)
@@ -203,7 +205,6 @@ class CompilerWorker:
             return self.error.emit(e.msg)
 
         except Exception as e:
-            print(traceback.format_exc())
             self.log_error(str(e), False)
             return self.error.emit(str(e))
 
@@ -285,9 +286,11 @@ class CompilerWorker:
                     file.replace(Path(self._cwd) / path / file.name)
 
 
+        s = f'Compilation finished in {timeit.default_timer() - start_time:.2f} seconds.'
+
         self.log_info_all('&nbsp;', True)
-        if missing_symbols: self.log_success('All done, but the game will crash at some point due to missing symbols.', False)
-        else: self.log_success('All done!', False)
+        if missing_symbols: self.log_success(f'All done, but the game will crash at some point due to missing symbols.\n{s}', False)
+        else: self.log_success(f'All done! {s}', False)
 
         self.new_symbols.emit(func_symbols)
 

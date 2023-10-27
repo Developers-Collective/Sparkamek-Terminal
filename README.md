@@ -20,7 +20,7 @@
 
 ----------------------------------------------------------------------
 
-Sparkamek is an app for Windows, Linux and MacOS. Kamek is a tool that allows you to add custom code to New Super Mario Bros. Wii. Sparkamek allows you to create, edit and build Kamek projects with ease. Everything is done in a simple and easy to use GUI.
+Sparkamek is an app for Windows, Linux and MacOS. Kamek is a tool that allows you to add custom code to New Super Mario Bros. Wii. Sparkamek allows you to create, edit and build Kamek projects with ease. Everything is done in a simple and easy to use TUI.
 
 Sparkamek Terminal is a lite version of Sparkamek that only contains the Kamek compiler. It is available for Windows, Linux and MacOS.
 

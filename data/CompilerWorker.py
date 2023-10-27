@@ -101,7 +101,15 @@ class CompilerWorker:
         try: self._address_mapper_controller.run()
 
         except ProjectException as e:
-            self.log_error(e.msg, False)
+            l = e.msg.split('\n')
+            if not l:
+                self.log_error('Internal error', False)
+                return self.error.emit('Internal error')
+
+            self.log_error(l[0], False)
+            for line in l[1:]:
+                self.log_error(line, True)
+
             return self.error.emit(e.msg)
 
 
@@ -112,6 +120,16 @@ class CompilerWorker:
             cw_path = str(path.parent.relative_to(self._cwd)) + '/'
             break
 
+        if not cw_path:
+            if os.path.isdir(f'{self._cwd}/tools/cw'):
+                cw_path = 'tools/cw/'
+
+            else:
+                self.log_error(f'Cannot find CodeWarrior at "{self._cwd}/tools/cw".\nPlease make sure CodeWarrior is installed correctly into the tools folder.', False)
+                self.log_error(f'You can find the installer here: {colorama.Fore.LIGHTMAGENTA_EX}\"http://cache.nxp.com/lgfiles/devsuites/PowerPC/CW55xx_v2_10_SE.exe?WT_TYPE=IDE%20-%20Debug,%20Compile%20and%20Build%20Tools&WT_VENDOR=FREESCALE&WT_FILE_FORMAT=exe&WT_ASSET=Downloads&fileExt=.exe\"{colorama.Style.RESET_ALL}NXP \'CodeWarrior Special Edition\' for MPC55xx/MPC56xx v2.10.', True)
+                self.log_error(f'If this direct link doesn\'t work, the original page is {colorama.Fore.LIGHTMAGENTA_EX}\"http://web.archive.org/web/20160602205749/http://www.nxp.com/products/software-and-tools/software-development-tools/codewarrior-development-tools/downloads/special-edition-software:CW_SPECIALEDITIONS\"{colorama.Style.RESET_ALL}available on the Internet Archive.', True)
+                return self.error.emit(f'Cannot find CodeWarrior at "{self._cwd}/tools/cw".')
+
 
         self._kamek_controller.set_config( # todo: get from settings (maybe?)
             KamekConfig(
@@ -120,7 +138,7 @@ class CompilerWorker:
                 use_mw = True,
                 gcc_path = self._devkitppc_path,
                 gcc_type = 'powerpc-eabi',
-                mw_path = cw_path if cw_path else 'tools/cw/',
+                mw_path = cw_path,
                 filt_path = 'tools/c++filt/',
                 fast_hack = True,
                 **kamekopts
@@ -167,10 +185,10 @@ class CompilerWorker:
         except ProjectException as e:
             if 'Driver Error' in e.msg:
                 func = lambda s, inv: self.log_complete.emit(s, LogType.Error, inv)
-                self.log_simple.emit('An Driver Error occured while calling the compiler.', LogType.Error, False)
-                self.log_simple.emit('Please make sure the right version of CodeWarrior is installed into the tools folder.', LogType.Error, True)
-                self.log_simple.emit(f'You can find the installer here: {colorama.Fore.LIGHTMAGENTA_EX}\"http://cache.nxp.com/lgfiles/devsuites/PowerPC/CW55xx_v2_10_SE.exe?WT_TYPE=IDE%20-%20Debug,%20Compile%20and%20Build%20Tools&WT_VENDOR=FREESCALE&WT_FILE_FORMAT=exe&WT_ASSET=Downloads&fileExt=.exe\"{colorama.Style.RESET_ALL}NXP \'CodeWarrior Special Edition\' for MPC55xx/MPC56xx v2.10.', LogType.Error, True)
-                self.log_simple.emit(f'If this direct link doesn\'t work, the original page is {colorama.Fore.LIGHTMAGENTA_EX}\"http://web.archive.org/web/20160602205749/http://www.nxp.com/products/software-and-tools/software-development-tools/codewarrior-development-tools/downloads/special-edition-software:CW_SPECIALEDITIONS\"{colorama.Style.RESET_ALL}available on the Internet Archive.', LogType.Error, True)
+                self.log_error('An Driver Error occured while calling the compiler.', False)
+                self.log_error('Please make sure the right version of CodeWarrior is installed into the tools folder.', True)
+                self.log_error(f'You can find the installer here: {colorama.Fore.LIGHTMAGENTA_EX}\"http://cache.nxp.com/lgfiles/devsuites/PowerPC/CW55xx_v2_10_SE.exe?WT_TYPE=IDE%20-%20Debug,%20Compile%20and%20Build%20Tools&WT_VENDOR=FREESCALE&WT_FILE_FORMAT=exe&WT_ASSET=Downloads&fileExt=.exe\"{colorama.Style.RESET_ALL}NXP \'CodeWarrior Special Edition\' for MPC55xx/MPC56xx v2.10.', True)
+                self.log_error(f'If this direct link doesn\'t work, the original page is {colorama.Fore.LIGHTMAGENTA_EX}\"http://web.archive.org/web/20160602205749/http://www.nxp.com/products/software-and-tools/software-development-tools/codewarrior-development-tools/downloads/special-edition-software:CW_SPECIALEDITIONS\"{colorama.Style.RESET_ALL}available on the Internet Archive.', True)
 
             else:
                 func = self.log_error

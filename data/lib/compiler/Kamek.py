@@ -37,6 +37,7 @@ class KamekConfig:
     keep_temp: bool = False
     fast_hack: bool = False
     gcc_append_exe: bool = False
+    nintendo_driver_mode: bool = False
 
     @property
     def delete_temp(self) -> bool:
@@ -436,8 +437,45 @@ class KamekBuilder:
 
         if self._controller.config.use_mw:
             # metrowerks setup
-            cc_command = ['%smwcceppc.exe' % self._controller.config.mw_path, '-I.', '-I-', '-I.', '-nostdinc', '-Cpp_exceptions', 'off', '-Os', '-proc', 'gekko', '-fp', 'hard', '-enum', 'int', '-sdata', '0', '-sdata2', '0', '-g', '-RTTI', 'off', '-use_lmw_stmw', 'on']
-            as_command = ['%smwasmeppc.exe' % self._controller.config.mw_path, '-I.', '-I-', '-I.', '-nostdinc', '-proc', 'gekko', '-d', '__MWERKS__']
+            cc_command = (
+                [
+                    '%smwcceppc.exe' % self._controller.config.mw_path,
+                    '-I.',
+                    '-I-',
+                    '-I.',
+                    '-nostdinc',
+                    '-Cpp_exceptions',
+                    'off'
+                ] + (['-Os', '-proc', 'gekko'] if self._controller.config.nintendo_driver_mode else []) +
+                [
+                    '-fp',
+                    'hard',
+                    '-enum',
+                    'int',
+                    '-sdata',
+                    '0',
+                    '-sdata2',
+                    '0',
+                    '-g',
+                    '-RTTI',
+                    'off',
+                    '-use_lmw_stmw',
+                    'on'
+                ]
+            )
+            as_command = (
+                [
+                    '%smwasmeppc.exe' % self._controller.config.mw_path,
+                    '-I.',
+                    '-I-',
+                    '-I.',
+                    '-nostdinc'
+                ] + (['-proc', 'gekko'] if self._controller.config.nintendo_driver_mode else []) +
+                [
+                    '-d',
+                    '__MWERKS__'
+                ]
+            )
 
             try:
                 if isinstance(self._config.get('defines'), dict): self._config['defines'] = list(self._config['defines'].keys())

@@ -77,10 +77,14 @@ class AddressMapperController:
 
 
     def run(self) -> None:
-        if not os.path.exists(f'{self._cwd}/tools/versions-nsmbw.txt'):
+        path = f'{self._cwd}/tools/versions-nsmbw.txt'
+        if not os.path.exists(path):
+            path = './data/game/nsmbw/versions/versions-nsmbw.txt'
+        
+        if not os.path.exists(path):
             raise ProjectException(f'Unable to find "{LogType.Error.value}versions-nsmbw.txt{colorama.Style.RESET_ALL}" at "{self._cwd}/tools"', LogType.Error)
 
-        with open(f'{self._cwd}/tools/versions-nsmbw.txt', 'r', encoding = 'utf-8') as infile:
+        with open(path, 'r', encoding = 'utf-8') as infile:
             try: mappers = self._read_version_info(infile)
             except ValueError as e: raise ProjectException(str(e), LogType.Error)
 

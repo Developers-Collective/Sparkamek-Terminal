@@ -168,3 +168,4 @@ compileConfig.json
 log/
 tmp.py
 config.json
+tmp/

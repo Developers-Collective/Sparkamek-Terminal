@@ -3,9 +3,9 @@
     # Libraries
 import os, colorama, json, sys
 from textual import *
-from data.CompilerWorker import CompilerWorker
-from data.LogType import LogType
-from data.view import *
+from data.lib.CompilerWorker import CompilerWorker
+from data.lib.LogType import LogType
+from data.lib.view import *
 #----------------------------------------------------------------------
 
     # Setup

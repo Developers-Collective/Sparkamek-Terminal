@@ -4,8 +4,8 @@
 import os, yaml, sys, difflib, colorama, timeit
 from pathlib import Path
 
-from data.LogType import LogType
-from data.ProjectException import ProjectException
+from data.lib.LogType import LogType
+from data.lib.ProjectException import ProjectException
 from .compiler import *
 from .Signal import Signal
 #----------------------------------------------------------------------
@@ -37,7 +37,7 @@ class CompilerWorker:
             ({'jpn2': 'J2'} if data.get('generateJP', None) else {}) |
             ({'kor': 'K'} if data.get('generateKR', None) else {}) |
             ({'twn': 'W'} if data.get('generateTW', None) else {}) |
-            ({'chn': 'C'} if data.get('generateCH', None) else {})
+            ({'chn': 'C'} if data.get('generateCN', None) else {})
         )
 
         self._address_mapper_controller = AddressMapperController(self._cwd, self._project_path, self._base_version, self._version_ids)
@@ -143,6 +143,7 @@ class CompilerWorker:
                 mw_path = cw_path,
                 filt_path = 'tools/c++filt/',
                 fast_hack = True,
+                nintendo_driver_mode = False,
                 **kamekopts
             )
         )
@@ -258,13 +259,13 @@ class CompilerWorker:
             except FileNotFoundError as e:
                 self.log_warning(f'Cannot find TW files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
 
-        if self._data.get('generateCH', None):
+        if self._data.get('generateCN', None):
             try:
-                self.log_info('Renaming CH files...', False)
+                self.log_info('Renaming CN files...', False)
                 self._copy_files('chn', 'CN_5')
 
             except FileNotFoundError as e:
-                self.log_warning(f'Cannot find CH files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
+                self.log_warning(f'Cannot find CN files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
 
 
         if missing_symbols:

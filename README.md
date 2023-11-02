@@ -106,3 +106,18 @@ The complete mode is the same as the Kamek one, but with colors, spacing and the
 To compile, just run `main.py` when running from source code or the `Sparkamek Terminal` executable when running from a release.
 
 *You can start it from anywhere, it will automatically set the current directory to the `tools` folder of your Kamek project as long as you set the `path` in the `config.json` file to the `NewerProject.yaml` file (or whatever it's called) of your Kamek project.*
+
+
+## Known Issues
+
+This section contains known issues with the app and how to fix them.
+
+<div id='known-issues-question-mark-instead-of-special-characters'></div>
+
+### Windows Command Line shows "?" instead of special characters
+
+![Display problem](https://raw.githubusercontent.com/Synell/Assets/main/SparkamekTerminal/readme/known-issues-question-mark-instead-of-special-characters.png)
+
+This is a known issue with the Windows Command Line. To fix this, you can right click on the title bar, go to `Properties`, then `Font` and select `Cascadia Mono SemiBold` as the font (or any font that support special characters). Some special characters will still be missing, but it's better than nothing.
+
+Alternatively, you can use a different terminal like [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701) or any other terminal that supports special characters.

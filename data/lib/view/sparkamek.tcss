@@ -1,21 +1,68 @@
-Screen {
-    align: center middle;
+* {
+    transition: background 200ms in_out_cubic, color 200ms in_out_cubic;
 }
 
-#title {
+Screen {
+    layers: base overlay notifications;
+    overflow: hidden;
+}
+
+Notification {
+    dock: bottom;
+    layer: notification;
+    width: auto;
+    margin: 2 4;
+    padding: 1 2;
+    background: $background;
+    color: $text;
+    height: auto;
+}
+
+Screen > Container {
+    height: 100%;
+    overflow: hidden;
+}
+
+OptionGroup {
+    background: $boost;
+    color: $text;
+    height: 1fr;
+    border-right: vkey $background;
+}
+
+Message {
+    margin: 0 1;
+}
+
+Version {
+    color: $text-disabled;
+    dock: bottom;
+    text-align: center;
+    padding: 1;
+}
+
+#title, .italic {
     width: 100%;
     text-align: center;
 }
 
-#root {
-    padding: 2;
+Body {
+    margin: 1;
     height: 100%;
+    overflow-y: scroll;
     width: 100%;
+    background: $surface;
+}
+
+Column {
+    height: auto;
+    min-height: 100vh;
+    align: center top;
+    overflow: hidden;
 }
 
 #list {
     width: 100%;
-    min-height: 70%;
     align: center middle;
 }
 
@@ -34,5 +81,30 @@ Button {
 #buttons {
     width: 100%;
     layout: horizontal;
-    align: center middle;
+    align: center bottom;
+}
+
+Sidebar {
+    width: 40;
+    background: $panel;
+    transition: offset 200ms in_out_cubic;
+    layer: overlay;
+}
+
+Sidebar:focus-within {
+    offset: 0 0 !important;
+}
+
+Sidebar.-hidden {
+    offset-x: -100%;
+}
+
+Sidebar Title {
+    background: $boost;
+    color: $secondary;
+    padding: 2 4;
+    border-right: vkey $background;
+    dock: top;
+    text-align: center;
+    text-style: bold;
 }

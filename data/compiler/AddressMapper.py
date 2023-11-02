@@ -90,6 +90,7 @@ class AddressMapperController:
         for x_id, txt_id in self._version_ids.items():
             try: self._do_mapfile(f'kamek_{self._base_version}.x', f'kamek_{x_id}.x', mappers[txt_id])
             except FileNotFoundError: raise ProjectException(f'Unable to find "{LogType.Error.value}kamek_{self._base_version}.x{colorama.Style.RESET_ALL}" at "{self._cwd}"', LogType.Error)
+            except KeyError: raise ProjectException(f'Unable to find version {LogType.Error.value}{txt_id}{colorama.Style.RESET_ALL} in {self._cwd}/tools/versions-nsmbw.txt', LogType.Error)
             except Exception as e: raise ProjectException(str(e), LogType.Error)
 
         already_done = set()

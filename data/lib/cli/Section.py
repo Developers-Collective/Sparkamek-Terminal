@@ -56,5 +56,5 @@ class Section:
 
     def display_name(self) -> None:
         print()
-        print(f'{colorama.Fore.LIGHTBLUE_EX}{self._name}{colorama.Style.RESET_ALL}')
+        print(f'{colorama.Fore.LIGHTBLUE_EX}{self._name.replace("-", " ").title()}{colorama.Style.RESET_ALL}')
 #----------------------------------------------------------------------

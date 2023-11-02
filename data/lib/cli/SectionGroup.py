@@ -44,7 +44,7 @@ class SectionGroup:
         print(f'{colorama.Fore.LIGHTWHITE_EX}"{executable}"{colorama.Style.RESET_ALL}', end = ' ')
 
         for section in self._sections:
-            print(f'{section.type.value.replace("%s", section.name)}', end = ' ')
+            print(f'{section.type.value.replace("%s", section.name.replace("-", " ").title())}', end = ' ')
 
         print()
 #----------------------------------------------------------------------

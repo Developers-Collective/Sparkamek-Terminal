@@ -42,17 +42,16 @@ def log_simple(msg: str, log_type: LogType, invisible: bool = False) -> None:
 def log_complete(msg: str, log_type: LogType, invisible: bool = False) -> None:
     if not simple_logs: print(format_msg(msg, log_type, invisible).replace('&nbsp;', ' '))
 
-def press_any_key() -> None:
-    os.system('bash -c \'read -s -n 1 -p "Press any key to continue..."\'')
+def press_any_key(time: int = -1) -> None:
+    if time < 0: os.system('bash -c \'read -s -n 1 -p "Press any key to continue..."\'')
+    else: os.system(f'bash -c \'read -s -t {time} -n 1 -p "Press any key to continue..."\'')
 
 def clear() -> None:
     os.system('clear')
 #----------------------------------------------------------------------
 
     # Main
-def main():
-    global simple_logs
-
+def load_config() -> tuple[dict, str]:
     if not os.path.isfile('./config.json'):
         print(format_msg('Unable to find the config.json file. Please make sure it is in the same directory as this program.\nIf you don\'t have one yet, you can use the config-sample.json file as a template.', LogType.Error))
         press_any_key()
@@ -70,6 +69,13 @@ def main():
 
         case _:
             devkitppc_path = global_config['devkitPPCPath']['default']
+
+    return config, devkitppc_path
+
+
+
+def main():
+    config, devkitppc_path = load_config()
 
     if not (devkitppc_path is not None and os.path.isdir(devkitppc_path)):
         print(format_msg('Unable to find devkitPPC path. Please set it manually in config.json', LogType.Error))
@@ -95,28 +101,75 @@ def main():
 
         project = projects[selected_id]
 
-        simple_logs = project['simpleLogs']
+        try: compile(project, devkitppc_path)
+        except FileNotFoundError: break
 
-        if not os.path.exists(project['path']):
-            print(format_msg(f'Unable to find path for project {project["name"]}', LogType.Error))
+
+
+def parse_cli(config_file: dict, options: dict = {}) -> None:
+    config, devkitppc_path = load_config()
+
+    config_file = config_file['config_file']
+
+    path = os.getcwd()
+    os.chdir(OLD_PATH)
+
+    if not os.path.isfile(config_file['path']):
+        print(format_msg('Unable to find the config file. Please make sure it exists at the given path.', LogType.Error))
+        press_any_key()
+        return
+
+    with open(config_file['path'], 'r', encoding = 'utf8') as f:
+        project = json.load(f)
+        try: project['path'] = os.path.abspath(project['path'])
+        except Exception:
+            print(format_msg('Unable to find the project path. Please make sure it exists at the given path.', LogType.Error))
             press_any_key()
-            clear()
-            break
+            return
 
-        worker = CompilerWorker(
-            data = project,
-            devkitppc_path = devkitppc_path
-        )
-        worker.log_simple.connect(log_simple)
-        worker.log_complete.connect(log_complete)
-        worker.run()
+    os.chdir(path)
 
+    if (options.get('add_project', None) is not None):
+        existing_projects = [p['name'] for p in config['projects']]
+        if project['name'] not in existing_projects:
+            with open('./config.json', 'w', encoding = 'utf8') as f:
+                config['projects'].append(project)
+                json.dump(config, f, indent = 4)
+            print(format_msg(f'Added project {project["name"]} to config.json', LogType.Success))
+            press_any_key(3)
+
+    compile(project, devkitppc_path)
+
+
+
+def compile(project: dict, devkitppc_path: str) -> None:
+    global simple_logs
+
+    simple_logs = project['simpleLogs']
+
+    if not os.path.exists(project['path']):
+        print(format_msg(f'Unable to find path for project {project["name"]}', LogType.Error))
         press_any_key()
         clear()
+        raise FileNotFoundError()
+
+    clear()
+
+    worker = CompilerWorker(
+        data = project,
+        devkitppc_path = devkitppc_path
+    )
+    worker.log_simple.connect(log_simple)
+    worker.log_complete.connect(log_complete)
+    worker.run()
+
+    press_any_key()
+    clear()
 
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1: mainview()
+    if len(sys.argv) > 1:
+        mainview(__file__ if sys.argv[0].endswith('.py') else sys.executable, parse_cli)
     else: main()
 #----------------------------------------------------------------------

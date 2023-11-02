@@ -52,7 +52,7 @@ class CLI:
         kwargs = {}
         print()
 
-        while args_list: # Not optimal but it works (idk why it works but it works lol)
+        while args_list: # Very not optimal but it works (idk why it works but it works lol)
             arg: str = args_list.pop(0)
 
             if not arg.startswith('-'):

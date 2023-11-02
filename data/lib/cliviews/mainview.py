@@ -5,12 +5,13 @@ import colorama, sys
 from data.lib.view import *
 from data.lib.cli import *
 from data.lib.version import VERSION
+from typing import Callable
 #----------------------------------------------------------------------
 
     # Functions
-def mainview():
+def mainview(executable: str, callback: Callable):
     cli_ = CLI(
-        __file__ if sys.argv[0].endswith('.py') else sys.executable,
+        executable,
         f'{colorama.Fore.LIGHTCYAN_EX}Sparkamek Terminal'
         f'{colorama.Fore.LIGHTBLACK_EX} | '
         f'{colorama.Fore.LIGHTGREEN_EX}{VERSION[0]}'
@@ -69,7 +70,7 @@ def mainview():
 
     options_choice = Choice(
         name = 'options',
-        callback = lambda **kwargs: print(kwargs)
+        callback = lambda **kwargs: callback(**kwargs)
     )
     cli_.add_choice(options_choice)
 
@@ -82,15 +83,10 @@ def mainview():
         'options',
         SectionType.Optional,
         Command(
-            name = 'complete-logs',
-            description = 'Show complete logs instead of simple logs',
-            aliases = ('-cl', '--complete-logs')
-        ),
-        Command(
             name = 'add-project',
             description = 'Add a project to the config file if it doesn\'t exist',
             aliases = ('-a', '--add-project'),
-            arguments = (Argument('name', ArgumentType.Mandatory), Argument('path', ArgumentType.Mandatory))
+            # arguments = (Argument('name', ArgumentType.Mandatory), Argument('path', ArgumentType.Mandatory))
         )
     )
     options_section_group.add_section(options_section)

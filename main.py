@@ -1,15 +1,22 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import os, colorama, json, sys
+import os, sys
+OLD_PATH = os.getcwd()
+os.chdir(os.path.dirname(os.path.abspath(__file__ if sys.argv[0].endswith('.py') else sys.executable)))
+
+import colorama, json
+from enum import StrEnum, Enum
 from textual import *
 from data.lib.CompilerWorker import CompilerWorker
 from data.lib.LogType import LogType
 from data.lib.view import *
+from data.lib.cli import *
+from data.lib.version import VERSION
+from data.lib.cliviews import *
 #----------------------------------------------------------------------
 
     # Setup
-os.chdir(os.path.dirname(os.path.abspath(__file__ if sys.argv[0].endswith('.py') else sys.executable)))
 colorama.init(autoreset = True)
 
 neutral_color = colorama.Fore.WHITE
@@ -107,6 +114,9 @@ def main():
         press_any_key()
         clear()
 
+
+
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 1: mainview()
+    else: main()
 #----------------------------------------------------------------------

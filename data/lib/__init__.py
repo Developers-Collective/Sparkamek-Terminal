@@ -7,4 +7,5 @@ from .LogType import LogType
 from .ProjectException import ProjectException
 from .Signal import Signal
 from .compiler import *
+from .version import VERSION
 #----------------------------------------------------------------------

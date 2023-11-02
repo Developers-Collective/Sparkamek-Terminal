@@ -1,6 +1,7 @@
 #----------------------------------------------------------------------
 
     # Libraries
+from data.lib.version import VERSION
 from textual._path import CSSPathType
 from textual.app import App, CSSPathType, ComposeResult
 from textual.driver import Driver
@@ -16,9 +17,6 @@ import webbrowser
 #----------------------------------------------------------------------
 
     # Class
-VERSION = ('Version: Experimental', 'Build: 07e7d494')
-
-
 class Body(ScrollableContainer): pass
 
 

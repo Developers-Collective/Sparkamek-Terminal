@@ -169,9 +169,14 @@ class KamekBuilder:
 
         self._prepare_dirs()
 
+        keys = ['pal'] + list(self._controller.version_ids.keys())
+
         for config in self.configs:
-            # if only_build != None and config['short_name'] not in only_build:
-            #     continue
+            config_keys = list(config.get('multi_build', {}).keys()) + (
+                [i for i in [self._config.get('short_name', None)] if i is not None] if not 'multi_build' in config else []
+            )
+            if not any(k in keys for k in config_keys):
+                continue
 
             self._set_config(config)
 
@@ -210,7 +215,6 @@ class KamekBuilder:
             except Exception:
                 raise ProjectException(f'Invalid config file: "kamek_configs.yaml". Try using the same format as the NewerSMBW 1.3.0 one.', LogType.Error)
 
-            keys = list(self._controller.version_ids.keys()) + ['pal']
             for s_name, s_script in self._multi_build.items():
                 if s_name not in keys: continue
 
@@ -417,18 +421,18 @@ class KamekBuilder:
             self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{colorama.Style.RESET_ALL}', LogType.Error, True)
         self._controller.log_simple.emit('&nbsp;', LogType.Error, True)
 
-        for file in errors:
-            self._controller.log_complete.emit(f'{colorama.Fore.LIGHTWHITE_EX}{file}{colorama.Style.RESET_ALL}:', LogType.Error, False)
+        # for file in errors: # Removed all the errors because they are not needed
+        #     self._controller.log_complete.emit(f'{colorama.Fore.LIGHTWHITE_EX}{file}{colorama.Style.RESET_ALL}:', LogType.Error, False)
 
-            for fasthack_line, code, pos1, pos2, details in errors[file]:
-                code_begin = code[:pos1]
-                code_middle = code[pos1:pos2 + 1]
-                code_end = code[pos2 + 1:]
-                self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{colorama.Style.RESET_ALL}', LogType.Error, True)
-                self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{LogType.Error.value}{code_middle}{colorama.Style.RESET_ALL}{code_end}', LogType.Error, True)
-                for detail in details:
-                    self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{colorama.Style.RESET_ALL}', LogType.Error, True)
-                self._controller.log_complete.emit('&nbsp;', LogType.Error, True)
+        #     for fasthack_line, code, pos1, pos2, details in errors[file]:
+        #         code_begin = code[:pos1]
+        #         code_middle = code[pos1:pos2 + 1]
+        #         code_end = code[pos2 + 1:]
+        #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{colorama.Style.RESET_ALL}', LogType.Error, True)
+        #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{LogType.Error.value}{code_middle}{colorama.Style.RESET_ALL}{code_end}', LogType.Error, True)
+        #         for detail in details:
+        #             self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{colorama.Style.RESET_ALL}', LogType.Error, True)
+        #         self._controller.log_complete.emit('&nbsp;', LogType.Error, True)
 
 
     def _compile_modules(self) -> None:

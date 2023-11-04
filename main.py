@@ -138,6 +138,16 @@ def parse_cli(config_file: dict, options: dict = {}) -> None:
             print(format_msg(f'Added project {project["name"]} to config.json', LogType.Success))
             press_any_key(3)
 
+        else:
+            index = existing_projects.index(project['name'])
+            old_project = config['projects'][index]
+            if old_project != project:
+                with open('./config.json', 'w', encoding = 'utf8') as f:
+                    config['projects'][index] = project
+                    json.dump(config, f, indent = 4)
+                print(format_msg(f'Updated project {project["name"]} in config.json', LogType.Success))
+                press_any_key(3)
+
     compile(project, devkitppc_path)
 
 

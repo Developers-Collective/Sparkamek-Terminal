@@ -30,11 +30,11 @@ class CompilerWorker:
 
         self._base_version = 'pal'
         self._version_ids = (
-            ({'pal2': 'P2'} if data.get('generatePAL', None) else {}) |
-            ({'ntsc': 'E1'} if data.get('generateNTSC', None) else {}) |
-            ({'ntsc2': 'E2'} if data.get('generateNTSC', None) else {}) |
-            ({'jpn': 'J1'} if data.get('generateJP', None) else {}) |
-            ({'jpn2': 'J2'} if data.get('generateJP', None) else {}) |
+            ({'pal2': 'P2'} if (data.get('generatePALv2', None) or data.get('generatePAL', None)) else {}) |
+            ({'ntsc': 'E1'} if (data.get('generateNTSCv1', None) or data.get('generateNTSC', None)) else {}) |
+            ({'ntsc2': 'E2'} if (data.get('generateNTSCv2', None) or data.get('generateNTSC', None)) else {}) |
+            ({'jpn': 'J1'} if (data.get('generateJPv1', None) or data.get('generateJP', None)) else {}) |
+            ({'jpn2': 'J2'} if (data.get('generateJPv2', None) or data.get('generateJP', None)) else {}) |
             ({'kor': 'K'} if data.get('generateKR', None) else {}) |
             ({'twn': 'W'} if data.get('generateTW', None) else {}) |
             ({'chn': 'C'} if data.get('generateCN', None) else {})
@@ -143,7 +143,7 @@ class CompilerWorker:
                 mw_path = cw_path,
                 filt_path = 'tools/c++filt/',
                 fast_hack = True,
-                nintendo_driver_mode = False,
+                nintendo_driver_mode = self._data.get('nintendoDriverMode', None),
                 **kamekopts
             )
         )
@@ -216,57 +216,24 @@ class CompilerWorker:
 
         self.log_info('&nbsp;', True)
 
-        if self._data.get('generatePAL', None):
-            try:
-                self.log_info('Renaming PAL files...', False)
-                self._copy_files('pal', 'EU_1')
-                self._copy_files('pal2', 'EU_2')
+        def rename(name: str, key: str, key_all: str, version_name1: str, version_name2: str) -> None:
+            if self._data.get(key, None) or (self._data.get(key_all, None) if key_all else False):
+                try:
+                    self.log_info(f'Renaming {name} files...', False)
+                    self._copy_files(version_name1, version_name2)
 
-            except FileNotFoundError as e:
-                self.log_warning(f'Cannot find PAL files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
+                except FileNotFoundError as e:
+                    self.log_warning(f'Cannot find {name} file ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
 
-        if self._data.get('generateNTSC', None):
-            try:
-                self.log_info('Renaming NTSC files...', False)
-                self._copy_files('ntsc', 'US_1')
-                self._copy_files('ntsc2', 'US_2')
-
-            except FileNotFoundError as e:
-                self.log_warning(f'Cannot find NTSC files ({os.path.basename(e.filename)}). Did you forget add them to the compilation config?', False)
-
-        if self._data.get('generateJP', None):
-            try:
-                self.log_info('Renaming JP files...', False)
-                self._copy_files('jpn', 'JP_1')
-                self._copy_files('jpn2', 'JP_2')
-
-            except FileNotFoundError as e:
-                self.log_warning(f'Cannot find JP files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
-
-        if self._data.get('generateKR', None):
-            try:
-                self.log_info('Renaming KR files...', False)
-                self._copy_files('kor', 'KR_3')
-
-            except FileNotFoundError as e:
-                self.log_warning(f'Cannot find KR files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
-
-        if self._data.get('generateTW', None):
-            try:
-                self.log_info('Renaming TW files...', False)
-                self._copy_files('twn', 'TW_4')
-
-            except FileNotFoundError as e:
-                self.log_warning(f'Cannot find TW files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
-
-        if self._data.get('generateCN', None):
-            try:
-                self.log_info('Renaming CN files...', False)
-                self._copy_files('chn', 'CN_5')
-
-            except FileNotFoundError as e:
-                self.log_warning(f'Cannot find CN files ({os.path.basename(e.filename)}). Did you forget to add them to the compilation config?', False)
-
+        rename('PALv1', 'generatePALv1', 'generatePAL', 'pal', 'EU_1')
+        rename('PALv2', 'generatePALv2', 'generatePAL', 'pal2', 'EU_2')
+        rename('NTSCv1', 'generateNTSCv1', 'generateNTSC', 'ntsc', 'US_1')
+        rename('NTSCv2', 'generateNTSCv2', 'generateNTSC', 'ntsc2', 'US_2')
+        rename('JPv1', 'generateJPv1', 'generateJP', 'jpn', 'JP_1')
+        rename('JPv2', 'generateJPv2', 'generateJP', 'jpn2', 'JP_2')
+        rename('KR', 'generateKR', None, 'kor', 'KR_3')
+        rename('TW', 'generateTW', None, 'twn', 'TW_4')
+        rename('CN', 'generateCN', None, 'chn', 'CN_5')
 
         if missing_symbols:
             self.log_simple.emit('&nbsp;', LogType.Info, True)

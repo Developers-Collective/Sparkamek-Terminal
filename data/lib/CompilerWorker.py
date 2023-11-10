@@ -143,7 +143,7 @@ class CompilerWorker:
                 mw_path = cw_path,
                 filt_path = 'tools/c++filt/',
                 fast_hack = True,
-                nintendo_driver_mode = self._data.get('nintendoDriverMode', None),
+                nintendo_driver_mode = self._data.get('nintendoDriverMode', False),
                 **kamekopts
             )
         )

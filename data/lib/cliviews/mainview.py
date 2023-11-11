@@ -2,7 +2,6 @@
 
     # Libraries
 import colorama, sys
-from data.lib.view import *
 from data.lib.cli import *
 from data.lib.version import VERSION
 from typing import Callable

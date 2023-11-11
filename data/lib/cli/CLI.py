@@ -80,8 +80,7 @@ class CLI:
                 exceptions[choice.name] = e
 
         if not exceptions:
-            print(f'{colorama.Fore.LIGHTRED_EX}An error occured{colorama.Style.RESET_ALL}')
-            return
+            return print(f'{colorama.Fore.LIGHTRED_EX}An error occured{colorama.Style.RESET_ALL}')
 
         max_steps = max([e.step for e in exceptions.values()])
         new_exceptions = dict(filter(lambda e: e[1].step >= max_steps, exceptions.items()))

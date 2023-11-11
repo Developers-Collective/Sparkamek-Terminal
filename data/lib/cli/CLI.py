@@ -87,15 +87,13 @@ class CLI:
         new_exceptions = dict(filter(lambda e: e[1].step >= max_steps, exceptions.items()))
 
         if new_exceptions:
-            for choice, exception in new_exceptions.items():
+            for exception in new_exceptions.values():
                 print(f'{colorama.Fore.LIGHTRED_EX}{exception}{colorama.Style.RESET_ALL}')
 
             return
 
-        for choice, exception in exceptions.items():
-            print(f'{colorama.Fore.LIGHTRED_EX}{choice}: {exception}{colorama.Style.RESET_ALL}')
-
-        return
+        for exception in exceptions.values():
+            print(f'{colorama.Fore.LIGHTRED_EX}{exception}{colorama.Style.RESET_ALL}')
 
 
     def display(self, help: CommandResult = None) -> None:

@@ -5,22 +5,19 @@ import os, sys
 OLD_PATH = os.getcwd()
 os.chdir(os.path.dirname(os.path.abspath(__file__ if sys.argv[0].endswith('.py') else sys.executable)))
 
-import colorama, json
+import json
 from enum import StrEnum, Enum
 from textual import *
 from data.lib.CompilerWorker import CompilerWorker
 from data.lib.LogType import LogType
 from data.lib.view import *
 from data.lib.cli import *
+from data.lib.utils.Color import Color
 from data.lib.version import VERSION
 from data.lib.cliviews import *
 #----------------------------------------------------------------------
 
     # Setup
-colorama.init(autoreset = True)
-
-neutral_color = colorama.Fore.WHITE
-bracket_color = colorama.Fore.LIGHTBLACK_EX
 simple_logs: bool = False
 #----------------------------------------------------------------------
 
@@ -28,13 +25,13 @@ simple_logs: bool = False
 def format_msg(msg: str, log_type: LogType, invisible: bool = False) -> str:
     l = log_type.name
     if invisible:
-        l = f'{colorama.Style.RESET_ALL}' + ' ' * (len(l) + 2) * 2 + f'{colorama.Style.RESET_ALL}'
+        l = f'{Color.terminal_reset}' + ' ' * (len(l) + 2) * 2 + f'{Color.terminal_reset}'
 
-    def gen_span(msg: str, color: colorama.Fore) -> str:
-        return f'{color}{msg}{colorama.Style.RESET_ALL}'
+    def gen_span(msg: str, color: Color, background: bool = False) -> str:
+        return f'{color.terminal_background if background else color.terminal_color}{msg}{Color.terminal_reset}'
 
-    if invisible: return f'{l} {gen_span(msg, neutral_color)}'
-    return f'{gen_span("[", bracket_color)}{gen_span(l, LogType.to_fore(log_type))}{gen_span("]", bracket_color)} {gen_span(msg, neutral_color)}'
+    if invisible: return f'{l} {gen_span(msg, CLIConstants.NeutralColor)}'
+    return f'{gen_span("[", CLIConstants.BracketColor)}{gen_span(l, log_type.value)}{gen_span("]", CLIConstants.BracketColor)} {gen_span(msg, CLIConstants.NeutralColor)}'
 
 def log_simple(msg: str, log_type: LogType, invisible: bool = False) -> None:
     if simple_logs: print(format_msg(msg, log_type, invisible).replace('&nbsp;', ' '))

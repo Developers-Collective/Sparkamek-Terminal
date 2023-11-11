@@ -1,8 +1,9 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import dataclasses, typing, re, yaml, os, colorama
+import dataclasses, typing, re, yaml, os
 
+from data.lib.cli.CLIConstants import CLIConstants
 from ..LogType import LogType
 from ..ProjectException import ProjectException
 from ..Signal import Signal
@@ -82,7 +83,7 @@ class AddressMapperController:
             path = './data/game/nsmbw/versions/versions-nsmbw.txt'
         
         if not os.path.exists(path):
-            raise ProjectException(f'Unable to find "{LogType.Error.value}versions-nsmbw.txt{colorama.Style.RESET_ALL}" at "{self._cwd}/tools"', LogType.Error)
+            raise ProjectException(f'Unable to find "{LogType.Error.value}versions-nsmbw.txt{CLIConstants.Reset}" at "{self._cwd}/tools"', LogType.Error)
 
         with open(path, 'r', encoding = 'utf-8') as infile:
             try: mappers = self._read_version_info(infile)
@@ -93,8 +94,8 @@ class AddressMapperController:
 
         for x_id, txt_id in self._version_ids.items():
             try: self._do_mapfile(f'kamek_{self._base_version}.x', f'kamek_{x_id}.x', mappers[txt_id])
-            except FileNotFoundError: raise ProjectException(f'Unable to find "{LogType.Error.value}kamek_{self._base_version}.x{colorama.Style.RESET_ALL}" at "{self._cwd}"', LogType.Error)
-            except KeyError: raise ProjectException(f'Unable to find version {LogType.Error.value}{txt_id}{colorama.Style.RESET_ALL} in {self._cwd}/tools/versions-nsmbw.txt', LogType.Error)
+            except FileNotFoundError: raise ProjectException(f'Unable to find "{LogType.Error.value}kamek_{self._base_version}.x{CLIConstants.Reset}" at "{self._cwd}"', LogType.Error)
+            except KeyError: raise ProjectException(f'Unable to find version {LogType.Error.value}{txt_id}{CLIConstants.Reset} in {self._cwd}/tools/versions-nsmbw.txt', LogType.Error)
             except Exception as e: raise ProjectException(str(e), LogType.Error)
 
         already_done = set()
@@ -126,7 +127,7 @@ class AddressMapperController:
                 # New version
                 current_version_name = match.group(1)
                 if current_version_name in mappers:
-                    raise ValueError(f'Versions file contains duplicate version name {LogType.Error.value}{current_version_name}{colorama.Style.RESET_ALL}')
+                    raise ValueError(f'Versions file contains duplicate version name {LogType.Error.value}{current_version_name}{CLIConstants.Reset}')
 
                 current_version = AddressMapper()
                 mappers[current_version_name] = current_version
@@ -138,7 +139,7 @@ class AddressMapperController:
                 if match:
                     base_name = match.group(1)
                     if base_name not in mappers:
-                        raise ValueError(f'Version {current_version_name} extends unknown version {LogType.Error.value}{base_name}{colorama.Style.RESET_ALL}')
+                        raise ValueError(f'Version {current_version_name} extends unknown version {LogType.Error.value}{base_name}{CLIConstants.Reset}')
                     if current_version._base is not None:
                         raise ValueError(f'Version {current_version_name} already extends a version')
 
@@ -160,7 +161,7 @@ class AddressMapperController:
                     current_version.add_mapping(start_address, end_address, delta)
                     continue
 
-            ret = (f'Unrecognised line in versions file: {LogType.Warning.value}{line}{colorama.Style.RESET_ALL}', LogType.Warning, False)
+            ret = (f'Unrecognised line in versions file: {LogType.Warning.value}{line}{CLIConstants.Reset}', LogType.Warning, False)
             self.log_simple.emit(*ret)
             self.log_complete.emit(*ret)
 
@@ -215,7 +216,7 @@ class AddressMapperController:
                 hook[f'area_{name}'] = new_area
 
         except KeyError:
-            ret = (f'Key Error {LogType.Error.value}{error}{colorama.Style.RESET_ALL} in {name}', LogType.Error, False)
+            ret = (f'Key Error {LogType.Error.value}{error}{CLIConstants.Reset} in {name}', LogType.Error, False)
             self.log_simple.emit(*ret)
             self.log_complete.emit(*ret)
 
@@ -226,17 +227,17 @@ class AddressMapperController:
                 m = yaml.safe_load(f.read())
 
         except FileNotFoundError as e:
-            raise ProjectException(f'Unable to find "{LogType.Error.value}{e.filename}{colorama.Style.RESET_ALL}" at "{self._cwd}"', LogType.Error)
+            raise ProjectException(f'Unable to find "{LogType.Error.value}{e.filename}{CLIConstants.Reset}" at "{self._cwd}"', LogType.Error)
         
         except yaml.MarkedYAMLError as e:
             error = e.problem_mark.get_snippet().split('\n')[0]
             symbols_str = e.problem_mark.get_snippet().split('\n')[1]
             index_start, index_end = symbols_str.find('^'), symbols_str.rfind('^')
-            error_highlight = f'{error[:index_start]}{LogType.Error.value}{error[index_start:index_end+1]}{colorama.Style.RESET_ALL}{error[index_end+1:]}'
+            error_highlight = f'{error[:index_start]}{LogType.Error.value}{error[index_start:index_end+1]}{CLIConstants.Reset}{error[index_end+1:]}'
 
             error_msg = f'{e.problem} {e.context}'
 
-            raise ProjectException(f'Error parsing module file at line {e.problem_mark.line + 1}, column {e.problem_mark.column + 1}: {LogType.Error.value}{src}{colorama.Style.RESET_ALL}\n{error_msg}\n{error_highlight}', LogType.Error)
+            raise ProjectException(f'Error parsing module file at line {e.problem_mark.line + 1}, column {e.problem_mark.column + 1}: {LogType.Error.value}{src}{CLIConstants.Reset}\n{error_msg}\n{error_highlight}', LogType.Error)
 
         for x_id, txt_id in self._version_ids.items():
             mapper = mappers[txt_id]
@@ -254,17 +255,17 @@ class AddressMapperController:
                 proj = yaml.safe_load(infile.read())
 
         except FileNotFoundError as e:
-            raise ProjectException(f'Unable to find "{LogType.Error.value}{e.filename}{colorama.Style.RESET_ALL}" at "{self._cwd}"', LogType.Error)
+            raise ProjectException(f'Unable to find "{LogType.Error.value}{e.filename}{CLIConstants.Reset}" at "{self._cwd}"', LogType.Error)
         
         except yaml.MarkedYAMLError as e:
             error = e.problem_mark.get_snippet().split('\n')[0]
             symbols_str = e.problem_mark.get_snippet().split('\n')[1]
             index_start, index_end = symbols_str.find('^'), symbols_str.rfind('^')
-            error_highlight = f'{error[:index_start]}{LogType.Error.value}{error[index_start:index_end+1]}{colorama.Style.RESET_ALL}{error[index_end+1:]}'
+            error_highlight = f'{error[:index_start]}{LogType.Error.value}{error[index_start:index_end+1]}{CLIConstants.Reset}{error[index_end+1:]}'
 
             error_msg = f'{e.problem} {e.context}'
 
-            raise ProjectException(f'Error parsing module file at line {e.problem_mark.line + 1}, column {e.problem_mark.column + 1}: {LogType.Error.value}{f}{colorama.Style.RESET_ALL}\n{error_msg}\n{error_highlight}', LogType.Error)
+            raise ProjectException(f'Error parsing module file at line {e.problem_mark.line + 1}, column {e.problem_mark.column + 1}: {LogType.Error.value}{f}{CLIConstants.Reset}\n{error_msg}\n{error_highlight}', LogType.Error)
 
         if 'modules' in proj:
             for m in proj['modules']:

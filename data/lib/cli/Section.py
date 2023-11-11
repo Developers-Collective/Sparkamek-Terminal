@@ -1,10 +1,9 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import colorama
-
 from .SectionType import SectionType
 from .Command import Command
+from .CLIConstants import CLIConstants
 from .CLIException import CLIException
 #----------------------------------------------------------------------
 
@@ -75,5 +74,5 @@ class Section:
 
     def display_name(self) -> None:
         print()
-        print(f'{colorama.Fore.LIGHTBLUE_EX}{self._name.replace("-", " ").title()}{colorama.Style.RESET_ALL}')
+        print(f'{CLIConstants.BlueColor.terminal_color}{self._name.replace("-", " ").title()}{CLIConstants.Reset}')
 #----------------------------------------------------------------------

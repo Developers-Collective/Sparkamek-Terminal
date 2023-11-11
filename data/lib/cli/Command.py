@@ -1,8 +1,6 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import colorama
-
 from .Argument import Argument
 from .ArgumentType import ArgumentType
 from .CLIConstants import CLIConstants
@@ -86,14 +84,14 @@ class Command:
 
         desc = self._description.split('\n')
 
-        print(' ' * CLIConstants.SPACE_ALIGN, end = '')
-        print(f'{colorama.Fore.LIGHTYELLOW_EX}{aliases}{colorama.Style.RESET_ALL}', end = '')
-        print(' ' * (CLIConstants.SPACE_ARGS_ALIGN - len_aliases), end = '')
+        print(' ' * CLIConstants.SpaceAlign, end = '')
+        print(f'{CLIConstants.YellowColor.terminal_color}{aliases}{CLIConstants.Reset}', end = '')
+        print(' ' * (CLIConstants.SpaceArgsAlign - len_aliases), end = '')
         print(f'{arguments}', end = '')
-        print(' ' * (CLIConstants.SPACE_COMMENT_ALIGN - len_arguments), end = '')
-        print(f'{colorama.Fore.LIGHTWHITE_EX}{desc[0]}{colorama.Style.RESET_ALL}')
+        print(' ' * (CLIConstants.SpaceCommentAlign - len_arguments), end = '')
+        print(f'{CLIConstants.WhiteColor.terminal_color}{desc[0]}{CLIConstants.Reset}')
 
         for line in desc[1:]:
-            print(' ' * (CLIConstants.SPACE_COMMENT_ALIGN + CLIConstants.SPACE_ARGS_ALIGN + CLIConstants.SPACE_ALIGN), end = '')
-            print(f'{colorama.Fore.LIGHTWHITE_EX}{line}{colorama.Style.RESET_ALL}')
+            print(' ' * (CLIConstants.SpaceCommentAlign + CLIConstants.SpaceArgsAlign + CLIConstants.SpaceAlign), end = '')
+            print(f'{CLIConstants.WhiteColor.terminal_color}{line}{CLIConstants.Reset}')
 #----------------------------------------------------------------------

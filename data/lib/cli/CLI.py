@@ -1,10 +1,10 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import colorama
 from .Choice import Choice
 from .CLIException import CLIException
 from .CommandResult import CommandResult
+from .CLIConstants import CLIConstants
 #----------------------------------------------------------------------
 
     # Class
@@ -70,7 +70,7 @@ class CLI:
         print()
 
         try: args_list = self._arg_parser(args_list)
-        except CLIException as e: return print(f'{colorama.Fore.LIGHTRED_EX}{e}{colorama.Style.RESET_ALL}')
+        except CLIException as e: return print(f'{CLIConstants.ErrorColor.terminal_color}{e}{CLIConstants.Reset}')
 
         for choice in self._choices.values():
             try:
@@ -80,24 +80,24 @@ class CLI:
                 exceptions[choice.name] = e
 
         if not exceptions:
-            return print(f'{colorama.Fore.LIGHTRED_EX}An error occured{colorama.Style.RESET_ALL}')
+            return print(f'{CLIConstants.ErrorColor.terminal_color}An error occured{CLIConstants.Reset}')
 
         max_steps = max([e.step for e in exceptions.values()])
         new_exceptions = dict(filter(lambda e: e[1].step >= max_steps, exceptions.items()))
 
         if new_exceptions:
             for exception in new_exceptions.values():
-                print(f'{colorama.Fore.LIGHTRED_EX}{exception}{colorama.Style.RESET_ALL}')
+                print(f'{CLIConstants.ErrorColor.terminal_color}{exception}{CLIConstants.Reset}')
 
             return
 
         for exception in exceptions.values():
-            print(f'{colorama.Fore.LIGHTRED_EX}{exception}{colorama.Style.RESET_ALL}')
+            print(f'{CLIConstants.ErrorColor.terminal_color}{exception}{CLIConstants.Reset}')
 
 
     def display(self, help: CommandResult = None) -> None:
         if not help.exists('command'):
-            print(f'{colorama.Fore.LIGHTBLUE_EX}Usage{colorama.Style.RESET_ALL}')
+            print(f'{CLIConstants.BlueColor.terminal_color}Usage{CLIConstants.Reset}')
 
             for choice in self._choices.values():
                 choice.display_usage(self._executable)
@@ -115,5 +115,5 @@ class CLI:
                         command.display()
                         return
 
-        print(f'{colorama.Fore.LIGHTRED_EX}Unknown command {command_name}{colorama.Style.RESET_ALL}')
+        print(f'{CLIConstants.ErrorColor.terminal_color}Unknown command {command_name}{CLIConstants.Reset}')
 #----------------------------------------------------------------------

@@ -1,22 +1,23 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import colorama, sys
+import sys
 from data.lib.cli import *
 from data.lib.version import VERSION
 from typing import Callable
+from data.lib.cli.CLIConstants import CLIConstants
 #----------------------------------------------------------------------
 
     # Functions
 def mainview(executable: str, callback: Callable):
     cli_ = CLI(
         executable,
-        f'{colorama.Fore.LIGHTCYAN_EX}Sparkamek Terminal'
-        f'{colorama.Fore.LIGHTBLACK_EX} | '
-        f'{colorama.Fore.LIGHTGREEN_EX}{VERSION[0]}'
-        f'{colorama.Fore.LIGHTBLACK_EX} • '
-        f'{colorama.Fore.LIGHTGREEN_EX}{VERSION[1]}'
-        f'{colorama.Style.RESET_ALL}'
+        f'{CLIConstants.CyanColor.terminal_color}Sparkamek Terminal'
+        f'{CLIConstants.GrayColor.terminal_color} | '
+        f'{CLIConstants.GreenColor.terminal_color}{VERSION[0]}'
+        f'{CLIConstants.GrayColor.terminal_color} • '
+        f'{CLIConstants.GreenColor.terminal_color}{VERSION[1]}'
+        f'{CLIConstants.Reset}'
     )
 
 

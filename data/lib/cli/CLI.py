@@ -3,14 +3,8 @@
     # Libraries
 import colorama
 from .Choice import Choice
-from .Section import Section
-from .SectionGroup import SectionGroup
-from .Command import Command
-from .Argument import Argument
-from .CLIConstants import CLIConstants
-from .SectionType import SectionType
-from .ArgumentType import ArgumentType
 from .CLIException import CLIException
+from .CommandResult import CommandResult
 #----------------------------------------------------------------------
 
     # Class
@@ -72,9 +66,6 @@ class CLI:
 
     def exec(self, *args: str) -> None:
         args_list = tuple(args)
-        # error = None
-        # leave = False
-        kwargs = {}
         exceptions: dict[str, CLIException] = {}
         print()
 
@@ -97,7 +88,7 @@ class CLI:
 
         if new_exceptions:
             for choice, exception in new_exceptions.items():
-                print(f'{colorama.Fore.LIGHTRED_EX}{choice}: {exception}{colorama.Style.RESET_ALL}')
+                print(f'{colorama.Fore.LIGHTRED_EX}{exception}{colorama.Style.RESET_ALL}')
 
             return
 
@@ -107,8 +98,8 @@ class CLI:
         return
 
 
-    def display(self, help: str = None) -> None:
-        if not help.get('command', None):
+    def display(self, help: CommandResult = None) -> None:
+        if not help.exists('command'):
             print(f'{colorama.Fore.LIGHTBLUE_EX}Usage{colorama.Style.RESET_ALL}')
 
             for choice in self._choices.values():
@@ -119,7 +110,7 @@ class CLI:
 
             return
 
-        command_name = help['command']
+        command_name = help.command
         for choice in self._choices.values():
             for section_group in choice.section_groups:
                 for section in section_group.sections:

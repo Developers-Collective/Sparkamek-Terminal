@@ -106,20 +106,18 @@ def main():
 
 
 
-def parse_cli(config_file: dict, options: dict = {}) -> None:
+def parse_cli(config_file: CommandResult, add_project: CommandResult = None) -> None:
     config, devkitppc_path = load_config()
-
-    config_file = config_file['config_file']
 
     path = os.getcwd()
     os.chdir(OLD_PATH)
 
-    if not os.path.isfile(config_file['path']):
+    if not os.path.isfile(config_file.path):
         print(format_msg('Unable to find the config file. Please make sure it exists at the given path.', LogType.Error))
         press_any_key()
         return
 
-    with open(config_file['path'], 'r', encoding = 'utf8') as f:
+    with open(config_file.path, 'r', encoding = 'utf8') as f:
         project = json.load(f)
         try: project['path'] = os.path.abspath(project['path'])
         except Exception:
@@ -129,7 +127,7 @@ def parse_cli(config_file: dict, options: dict = {}) -> None:
 
     os.chdir(path)
 
-    if (options.get('add_project', None) is not None):
+    if add_project is not None:
         existing_projects = [p['name'] for p in config['projects']]
         if project['name'] not in existing_projects:
             with open('./config.json', 'w', encoding = 'utf8') as f:

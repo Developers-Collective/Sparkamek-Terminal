@@ -5,6 +5,7 @@ import colorama
 
 from .SectionType import SectionType
 from .Command import Command
+from .CLIException import CLIException
 #----------------------------------------------------------------------
 
     # Class
@@ -45,6 +46,24 @@ class Section:
                 return command
 
         return None
+
+
+    def exec(self, arg_list: tuple[str], input_step: int) -> tuple[dict[str, dict], tuple[str], int]:
+        results = {}
+        new_arg_list = list(arg_list)
+        step = input_step
+
+        for command in self._commands.values():
+            try:
+                result, new_arg_list, step = command.exec(new_arg_list, step + 1)
+                results |= result
+
+            except CLIException as e:
+                if self.type == SectionType.Mandatory:
+                    raise e
+                continue
+
+        return results, new_arg_list, step
 
 
     def display(self) -> None:

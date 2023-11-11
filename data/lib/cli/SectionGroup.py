@@ -35,6 +35,18 @@ class SectionGroup:
         return None
 
 
+    def exec(self, arg_list: tuple[str], input_step: int) -> tuple[dict[str, dict], tuple[str], int]:
+        results = {}
+        new_arg_list = list(arg_list)
+        step = input_step
+        
+        for section in self._sections:
+            result, new_arg_list, step = section.exec(new_arg_list, step + 1)
+            results |= result
+
+        return results, new_arg_list, step
+
+
     def display(self) -> None:
         for section in self._sections:
             section.display()

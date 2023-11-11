@@ -1,10 +1,11 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import colorama
+import math
 from typing import Callable
 
 from .SectionGroup import SectionGroup
+from .CLIException import CLIException
 #----------------------------------------------------------------------
 
     # Class
@@ -44,6 +45,19 @@ class Choice:
             section_group.display_usage(executable)
 
 
-    def exec(self, *args, **kwargs) -> None:
+    def call(self, *args, **kwargs) -> bool:
         if self._callback is not None: self._callback(*args, **kwargs)
+
+
+    def exec(self, arg_list: tuple[str]) -> None:
+        results = {}
+
+        for section_group in self._section_groups.values():
+            result, new_arg_list, _ = section_group.exec(arg_list, 1)
+            results |= result
+
+        if new_arg_list:
+            raise CLIException(f'Unknown extra argument: {new_arg_list[0]}', math.inf)
+
+        return self.call(**results)
 #----------------------------------------------------------------------

@@ -7,6 +7,7 @@ from typing import Callable
 from .Argument import Argument
 from .ArgumentType import ArgumentType
 from .CLIConstants import CLIConstants
+from .CLIException import CLIException
 #----------------------------------------------------------------------
 
     # Class
@@ -38,6 +39,29 @@ class Command:
     @property
     def arguments(self) -> tuple[Argument]:
         return self._arguments
+
+
+    def exec(self, arg_list: tuple[str], input_step: int) -> tuple[dict[str, str], tuple[str], int]:
+        results = {}
+        new_arg_list = list(arg_list)
+        step = input_step
+
+        if not new_arg_list[0] in self._aliases:
+            raise CLIException(f'Unknown command: {new_arg_list[0]}', step)
+        
+        new_arg_list.pop(0)
+        results[self._name] = {}
+
+        for argument in self._arguments:
+            step += 1
+            if not new_arg_list:
+                if argument.type == ArgumentType.Optional: continue
+                else: raise CLIException(f'Missing argument: {argument.name}', step)
+
+            arg = new_arg_list.pop(0)
+            results[self._name][argument.name] = arg
+
+        return results, tuple(new_arg_list), step
 
 
     def display(self) -> None:

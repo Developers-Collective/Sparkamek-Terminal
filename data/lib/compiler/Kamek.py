@@ -2,6 +2,7 @@
 
     # Libraries
 from typing import Any
+from collections import namedtuple
 import binascii, os, os.path, shutil, struct, subprocess, sys, yaml, elftools.elf.elffile, dataclasses, difflib
 from .Hooks import Hooks as hooks
 from .MissingSymbol import MissingSymbol
@@ -293,9 +294,11 @@ class KamekBuilder:
 
 
         lines = output.split('\n')
-        warnings: dict[str, list] = {}
-        errors: dict[str, list] = {}
-        first_error: tuple = None
+        datafile_struct = namedtuple('data_struct', ['file', 'line', 'code', 'pos1', 'pos2', 'details'])
+        data_struct = namedtuple('data_struct', ['line', 'code', 'pos1', 'pos2', 'details'])
+        warnings: dict[str, list[data_struct]] = {}
+        errors: dict[str, list[data_struct]] = {}
+        first_error: data_struct = None
 
         digits = '0123456789'
 
@@ -337,7 +340,7 @@ class KamekBuilder:
                     fasthack_line = true_line
 
                 if file not in warnings: warnings[file] = []
-                warnings[file].append((fasthack_line, code, waves.find('^'), waves.rfind('^'), details))
+                warnings[file].append(data_struct(fasthack_line, code, waves.find('^'), waves.rfind('^'), details))
 
                 continue
 
@@ -365,8 +368,8 @@ class KamekBuilder:
                 wavef = waves.find('^')
                 wavel = waves.rfind('^')
 
-                errors[file].append((fasthack_line, code, wavef, wavel, details))
-                if first_error is None: first_error = (file, fasthack_line, code, wavef, wavel, details)
+                errors[file].append(data_struct(fasthack_line, code, wavef, wavel, details))
+                if first_error is None: first_error = datafile_struct(file, fasthack_line, code, wavef, wavel, details)
 
                 continue
 
@@ -402,7 +405,7 @@ class KamekBuilder:
                 code_middle = code[pos1:pos2 + 1]
                 code_end = code[pos2 + 1:]
                 self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{CLIConstants.Reset}', True)
-                self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{LogType.Warning.value}{code_middle}{CLIConstants.Reset}{code_end}', True)
+                self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.YellowColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', True)
                 for detail in details:
                     self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', True)
                 self._controller.log_warning('&nbsp;', True)
@@ -417,7 +420,7 @@ class KamekBuilder:
         code_middle = code[pos1:pos2 + 1]
         code_end = code[pos2 + 1:]
         self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{CLIConstants.Reset}', LogType.Error, True)
-        self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{LogType.Error.value}{code_middle}{CLIConstants.Reset}{code_end}', LogType.Error, True)
+        self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.RedColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', LogType.Error, True)
         for detail in details:
             self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', LogType.Error, True)
         self._controller.log_simple.emit('&nbsp;', LogType.Error, True)
@@ -430,7 +433,7 @@ class KamekBuilder:
         #         code_middle = code[pos1:pos2 + 1]
         #         code_end = code[pos2 + 1:]
         #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{CLIConstants.Reset}', LogType.Error, True)
-        #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{LogType.Error.value}{code_middle}{CLIConstants.Reset}{code_end}', LogType.Error, True)
+        #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.RedColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', LogType.Error, True)
         #         for detail in details:
         #             self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', LogType.Error, True)
         #         self._controller.log_complete.emit('&nbsp;', LogType.Error, True)
@@ -886,7 +889,7 @@ class KamekController:
 
 
     def add_missing_symbol(self, symbol: MissingSymbol) -> None:
-        self.log_complete.emit(f'The following reloc ({symbol.addr:x}) points to {symbol.target:d}: Is this right? {LogType.Warning.value}{symbol.name}{CLIConstants.Reset}', LogType.Warning, False)
+        self.log_complete.emit(f'The following reloc ({symbol.addr:x}) points to {symbol.target:d}: Is this right? {CLIConstants.YellowColor.terminal_color}{symbol.name}{CLIConstants.Reset}', LogType.Warning, False)
         if symbol.name not in self._missing_symbols: self._missing_symbols[symbol.name] = symbol
 
 

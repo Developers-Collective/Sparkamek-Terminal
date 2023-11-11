@@ -26,10 +26,11 @@ class CLIConstants:
     CyanColor = Color.from_hex('#00B4FF')
     GreenColor = Color.from_hex('#16C60C')
     YellowColor = Color.from_hex('#FFD800')
+    RedColor = Color.from_hex('#FF3232')
     GrayColor = Color.from_hex('#767676')
     WhiteColor = Color.from_hex('#F2F2F2')
     Reset = Color.terminal_reset
 
-    NeutralColor = Color.from_hex('#AAAAAA')
-    BracketColor = Color.from_hex('#DDDDDD')
+    NeutralColor = Color.from_hex('#DDD')
+    BracketColor = Color.from_hex('#777')
 #----------------------------------------------------------------------

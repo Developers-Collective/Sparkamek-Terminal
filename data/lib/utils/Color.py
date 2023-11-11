@@ -1,86 +1,97 @@
 #----------------------------------------------------------------------
 
     # Libraries
-from multipledispatch import dispatch as overload
+from plum import dispatch as overload
 import colorsys
 from .classproperty import classproperty
 #----------------------------------------------------------------------
 
     # Class
 class Color:
-    @overload()
+    @overload
     def __init__(self) -> None:
         self._red = 0
         self._green = 0
         self._blue = 0
         self._alpha = 255
 
-    @overload(int, int, int)
+    @overload
     def __init__(self, red: int, green: int, blue: int) -> None:
         self._red = self._byte_range(red)
         self._green = self._byte_range(green)
         self._blue = self._byte_range(blue)
         self._alpha = 255
 
-    @overload(int, int, int, int)
+    @overload
     def __init__(self, red: int, green: int, blue: int, alpha: int) -> None:
         self._red = self._byte_range(red)
         self._green = self._byte_range(green)
         self._blue = self._byte_range(blue)
         self._alpha = self._byte_range(alpha)
 
-    @overload(tuple)
+    @overload
     def __init__(self, rgb: tuple[int, int, int]) -> None:
         self._red = self._byte_range(rgb[0])
         self._green = self._byte_range(rgb[1])
         self._blue = self._byte_range(rgb[2])
         self._alpha = 255
 
-    @overload(tuple)
+    @overload
     def __init__(self, rgba: tuple[int, int, int, int]) -> None:
         self._red = self._byte_range(rgba[0])
         self._green = self._byte_range(rgba[1])
         self._blue = self._byte_range(rgba[2])
         self._alpha = self._byte_range(rgba[3])
 
-    @overload(str)
+    @overload
     def __init__(self, color: str) -> None:
         color = color.replace('#', '')
-        self._red = int(color[0:2], 16)
-        self._green = int(color[2:4], 16)
-        self._blue = int(color[4:6], 16)
-        self._alpha = int(color[6:8], 16) if len(color) == 8 else 255
+
+        if (len(color) == 6 or len(color) == 8):
+            self._red = int(color[0:2], 16)
+            self._green = int(color[2:4], 16)
+            self._blue = int(color[4:6], 16)
+            self._alpha = int(color[6:8], 16) if len(color) == 8 else 255
+
+        elif (len(color) == 3 or len(color) == 4):
+            self._red = int(color[0] + color[0], 16)
+            self._green = int(color[1] + color[1], 16)
+            self._blue = int(color[2] + color[2], 16)
+            self._alpha = int(color[3] + color[3], 16) if len(color) == 4 else 255
+
+        else:
+            raise ValueError(f'Invalid color format: {color}')
 
     def _byte_range(self, value: int) -> int:
         return int(max(0, min(value, 255)))
 
 
-    @overload((int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_rgb(red: int, green: int, blue: int) -> 'Color':
         return Color(red, green, blue)
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_rgb(rgb: tuple[int|float, int|float, int|float]) -> 'Color':
         return Color(rgb[0], rgb[1], rgb[2])
 
-    @overload((int, float), (int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_rgba(red: int, green: int, blue: int, alpha: int) -> 'Color':
         return Color(red, green, blue, alpha)
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_rgba(rgba: tuple[int|float, int|float, int|float, int|float]) -> 'Color':
         return Color(rgba[0], rgba[1], rgba[2], rgba[3])
 
-    @overload((int, float), (int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_argb(alpha: int, red: int, green: int, blue: int) -> 'Color':
         return Color(red, green, blue, alpha)
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_argb(argb: tuple[int|float, int|float, int|float, int|float]) -> 'Color':
         return Color(argb[1], argb[2], argb[3], argb[0])
@@ -104,73 +115,73 @@ class Color:
         c._blue = int(color[6:8], 16)
 
 
-    @overload((int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_hsv(hue: int|float, saturation: int|float, value: int|float) -> 'Color':
         r, g, b = colorsys.hsv_to_rgb(hue / 100.0, saturation / 100.0, value / 100.0)
         return Color(int(r * 255), int(g * 255), int(b * 255))
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_hsv(hsv: tuple[int|float, int|float, int|float]) -> 'Color':
         return Color.from_hsv(hsv[0], hsv[1], hsv[2])
 
-    @overload((int, float), (int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_hsva(hue: int|float, saturation: int|float, value: int|float, alpha: int|float) -> 'Color':
         c = Color.from_hsv(hue, saturation, value)
         c.alpha = alpha * 2.55
         return c
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_hsva(hsva: tuple[int|float, int|float, int|float, int|float]) -> 'Color':
         return Color.from_hsva(hsva[0], hsva[1], hsva[2], hsva[3])
 
 
-    @overload((int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_hls(hue: int|float, lightness: int|float, saturation: int|float) -> 'Color':
         r, g, b = colorsys.hls_to_rgb(hue / 100.0, lightness / 100.0, saturation / 100.0)
         return Color(int(r * 255), int(g * 255), int(b * 255))
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_hls(hls: tuple[int|float, int|float, int|float]) -> 'Color':
         return Color.from_hls(hls[0], hls[1], hls[2])
 
-    @overload((int, float), (int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_hlsa(hue: int|float, lightness: int|float, saturation: int|float, alpha: int|float) -> 'Color':
         c = Color.from_hls(hue, lightness, saturation)
         c.alpha = alpha * 2.55
         return c
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_hlsa(hlsa: tuple[int|float, int|float, int|float, int|float]) -> 'Color':
         return Color.from_hlsa(hlsa[0], hlsa[1], hlsa[2], hlsa[3])
 
 
-    @overload((int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_hsl(hue: int|float, saturation: int|float, lightness: int|float) -> 'Color':
         r, g, b = colorsys.hls_to_rgb(hue / 100.0, lightness / 100.0, saturation / 100.0)
         return Color(int(r * 255), int(g * 255), int(b * 255))
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_hsl(hsl: tuple[int|float, int|float, int|float]) -> 'Color':
         return Color.from_hsl(hsl[0], hsl[1], hsl[2])
 
-    @overload((int, float), (int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_hsla(hue: int|float, saturation: int|float, lightness: int|float, alpha: int|float) -> 'Color':
         c = Color.from_hsl(hue, saturation, lightness)
         c.alpha = alpha * 2.55
         return c
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_hsla(hsla: tuple[int|float, int|float, int|float, int|float]) -> 'Color':
         return Color.from_hsla(hsla[0], hsla[1], hsla[2], hsla[3])
@@ -179,49 +190,49 @@ class Color:
 
 
 
-    @overload((int, float), (int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_cmyk(cyan: int|float, magenta: int|float, yellow: int|float, black: int|float) -> 'Color':
         r, g, b = int(2.55 * (100.0 - cyan) * (100.0 - black)), int(2.55 * (100.0 - magenta) * (100.0 - black)), int(2.55 * (100.0 - yellow) * (100.0 - black))
         return Color(r, g, b)
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_cmyk(cmyk: tuple[int|float, int|float, int|float, int|float]) -> 'Color':
         return Color.from_cmyk(cmyk[0], cmyk[1], cmyk[2], cmyk[3])
 
-    @overload((int, float), (int, float), (int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_cmyka(cyan: int|float, magenta: int|float, yellow: int|float, black: int|float, alpha: int|float) -> 'Color':
         c = Color.from_cmyk(cyan, magenta, yellow, black)
         c.alpha = alpha * 2.55
         return c
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_cmyka(cmyka: tuple[int|float, int|float, int|float, int|float, int|float]) -> 'Color':
         return Color.from_cmyka(cmyka[0], cmyka[1], cmyka[2], cmyka[3], cmyka[4])
 
 
-    @overload((int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_yiq(y: int|float, i: int|float, q: int|float) -> 'Color':
         r, g, b = colorsys.yiq_to_rgb(y / 100.0, i / 100.0, q / 100.0)
         return Color(int(r * 255), int(g * 255), int(b * 255))
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_yiq(yiq: tuple[int|float, int|float, int|float]) -> 'Color':
         return Color.from_yiq(yiq[0], yiq[1], yiq[2])
 
-    @overload((int, float), (int, float), (int, float), (int, float))
+    @overload
     @staticmethod
     def from_yiqa(y: int|float, i: int|float, q: int|float, alpha: int|float) -> 'Color':
         c = Color.from_yiq(y, i, q)
         c.alpha = alpha * 2.55
         return c
 
-    @overload(tuple)
+    @overload
     @staticmethod
     def from_yiqa(yiq: tuple[int|float, int|float, int|float, int|float]) -> 'Color':
         return Color.from_yiqa(yiq[0], yiq[1], yiq[2], yiq[3])

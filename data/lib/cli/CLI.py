@@ -64,20 +64,9 @@ class CLI:
         return tuple(new_args_list)
 
 
-    def exec(self, *args: str) -> None:
-        args_list = tuple(args)
-        exceptions: dict[str, CLIException] = {}
-        print()
-
-        try: args_list = self._arg_parser(args_list)
-        except CLIException as e: return print(f'{CLIConstants.ErrorColor.terminal_color}{e}{CLIConstants.Reset}')
-
-        for choice in self._choices.values():
-            try:
-                return choice.exec(args_list)
-
-            except CLIException as e:
-                exceptions[choice.name] = e
+    def _exec_exceptions_handler(exceptions: dict[str, CLIException]) -> None:
+        def single_exception_handler(exception: CLIException) -> None:
+            print(f'{CLIConstants.ErrorColor.terminal_color}{exception}{CLIConstants.Reset}')
 
         if not exceptions:
             return print(f'{CLIConstants.ErrorColor.terminal_color}An error occured{CLIConstants.Reset}')
@@ -87,12 +76,27 @@ class CLI:
 
         if new_exceptions:
             for exception in new_exceptions.values():
-                print(f'{CLIConstants.ErrorColor.terminal_color}{exception}{CLIConstants.Reset}')
+                single_exception_handler(exception)
 
             return
 
         for exception in exceptions.values():
-            print(f'{CLIConstants.ErrorColor.terminal_color}{exception}{CLIConstants.Reset}')
+            single_exception_handler(exception)
+
+
+    def exec(self, *args: str) -> None:
+        args_list = tuple(args)
+        exceptions: dict[str, CLIException] = {}
+        print()
+
+        try: args_list = self._arg_parser(args_list)
+        except CLIException as e: return print(f'{CLIConstants.ErrorColor.terminal_color}{e}{CLIConstants.Reset}')
+
+        for choice in self._choices.values():
+            try: return choice.exec(args_list)
+            except CLIException as e: exceptions[choice.name] = e
+
+        self._exec_exceptions_handler(exceptions)
 
 
     def display(self, help: CommandResult = None) -> None:

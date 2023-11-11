@@ -320,58 +320,37 @@ class KamekBuilder:
                 continue
 
 
-            if line.startswith('# Warning: '):
-                waves = line[11:]
-                details = []
+            for prefix, append_list in (('# Warning: ', warnings), ('#   Error: ', errors)):
+                if line.startswith(prefix):
+                    waves = line[len(prefix):]
+                    details = []
 
-                while lines[0].startswith('# '):
-                    line = lines.pop(0)[1:].strip()
-                    details.append(line)
+                    while lines[0].startswith('# '):
+                        line = lines.pop(0)[1:].strip()
+                        details.append(line)
 
-                if self._controller.config.fast_hack and fasthack_content is not None and isfasthack:
-                    index = fasthack_line
-                    while ((not fasthack_content[index].startswith('// [Fasthack File Info] ')) or (not fasthack_content[index - 1].startswith('//')) or (not fasthack_content[index + 1].startswith('//'))) and index > 1:
-                        index -= 1
+                    if self._controller.config.fast_hack and fasthack_content is not None and isfasthack:
+                        index = fasthack_line
+                        while ((not fasthack_content[index].startswith('// [Fasthack File Info] ')) or (not fasthack_content[index - 1].startswith('//')) or (not fasthack_content[index + 1].startswith('//'))) and index > 1:
+                            index -= 1
 
-                    fasthack_line_content = fasthack_content[index].replace('// [Fasthack File Info] ', '')
-                    true_line = fasthack_line - index - 3
+                        fasthack_line_content = fasthack_content[index].replace('// [Fasthack File Info] ', '')
+                        true_line = fasthack_line - index - 3
 
-                    file = fasthack_line_content
-                    fasthack_line = true_line
+                        file = fasthack_line_content
+                        fasthack_line = true_line
 
-                if file not in warnings: warnings[file] = []
-                warnings[file].append(data_struct(fasthack_line, code, waves.find('^'), waves.rfind('^'), details))
+                    if file not in append_list: append_list[file] = []
 
-                continue
+                    wavef = waves.find('^')
+                    wavel = waves.rfind('^')
 
+                    append_list[file].append(data_struct(fasthack_line, code, wavef, wavel, details))
+                    if append_list is errors:
+                        if first_error is None: first_error = datafile_struct(file, fasthack_line, code, wavef, wavel, details)
 
-            if line.startswith('#   Error: '):
-                waves = line[11:]
-                details = []
+                    continue
 
-                while lines[0].startswith('# '):
-                    line = lines.pop(0)[1:].strip()
-                    details.append(line)
-
-                if self._controller.config.fast_hack and fasthack_content is not None and isfasthack:
-                    index = fasthack_line
-                    while ((not fasthack_content[index].startswith('// [Fasthack File Info] ')) or (not fasthack_content[index - 1].startswith('//')) or (not fasthack_content[index + 1].startswith('//'))) and index > 1:
-                        index -= 1
-
-                    fasthack_line_content = fasthack_content[index].replace('// [Fasthack File Info] ', '')
-                    true_line = fasthack_line - index - 3
-
-                    file = fasthack_line_content
-                    fasthack_line = true_line
-
-                if file not in errors: errors[file] = []
-                wavef = waves.find('^')
-                wavel = waves.rfind('^')
-
-                errors[file].append(data_struct(fasthack_line, code, wavef, wavel, details))
-                if first_error is None: first_error = datafile_struct(file, fasthack_line, code, wavef, wavel, details)
-
-                continue
 
             if line.startswith('# -'): continue
 

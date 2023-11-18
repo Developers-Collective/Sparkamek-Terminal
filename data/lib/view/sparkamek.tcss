@@ -30,6 +30,19 @@ OptionGroup {
     border-right: vkey $background;
 }
 
+RadioSet {
+    background: $boost;
+    color: $text;
+    height: 1fr;
+    padding: 1;
+}
+
+RadioButton {
+    width: 100%;
+    padding-left: 4;
+    padding-right: 4;
+}
+
 Message {
     margin: 0 1;
 }
@@ -66,7 +79,7 @@ Column {
     align: center middle;
 }
 
-#projects {
+#projects, #choices {
     width: 100%;
     height: 100%;
     align: center middle;

@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
 
     # Libraries
-from .ChoiceWindow import ChoiceWindow
-from .AddToPathWindow import AddToPathWindow, AddToPathResponse
+from .add_to_path import add_to_path
 #----------------------------------------------------------------------

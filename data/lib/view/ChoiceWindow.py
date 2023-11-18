@@ -14,42 +14,10 @@ from textual.css.query import NoMatches
 from textual.reactive import reactive
 from rich.console import RenderableType
 import webbrowser
+from .widgets import Sidebar, Body
 #----------------------------------------------------------------------
 
     # Class
-class Body(ScrollableContainer): pass
-
-
-class Title(Static): pass
-
-
-class OptionGroup(Container): pass
-
-
-class Message(Static): pass
-
-
-class Version(Static):
-    def render(self) -> RenderableType:
-        return f'[b]{VERSION[0]}\n{VERSION[1]}[/b]'
-
-
-class Column(Container): pass
-
-
-class Sidebar(Container):
-    def compose(self) -> ComposeResult:
-        yield Title('Help Menu')
-        yield OptionGroup(
-            Message(
-            'I hope you enjoy using Sparkamek Terminal. Here are some useful links if case you need them.' + '\n\n' +
-            '[@click="open_link(\'https://github.com/Synell/Sparkamek-Terminal#known-issues-question-mark-instead-of-special-characters\')"]Display Problem[/]' + '\n\n\n' +
-            'Built with ♥ by [@click="open_link(\'https://github.com/Synell/\')"]Synel[/] with [@click="app.open_link(\'https://www.textualize.io\')"]Textualize.io[/]'
-        ),
-        Version()
-    )
-
-
 class ChoiceWindow(App):
     CSS_PATH = 'sparkamek.tcss'
 
@@ -61,8 +29,10 @@ class ChoiceWindow(App):
 
     show_sidebar = reactive(False)
 
+
     def add_note(self, renderable: RenderableType) -> None:
         self.query_one(RichLog).write(renderable)
+
 
     def __init__(self, driver_class: type[Driver] | None = None, css_path: CSSPathType | None = None, watch_css: bool = False, projects: list[str] = [], selected_id: int = 0):
         super().__init__(driver_class, css_path, watch_css)
@@ -71,6 +41,7 @@ class ChoiceWindow(App):
         self._list = None
 
         self.title = f'Sparkamek Terminal | {VERSION[0]} • {VERSION[1]}'
+
 
     def compose(self) -> ComposeResult:
         with Container(id = 'root'):
@@ -95,25 +66,31 @@ class ChoiceWindow(App):
 
         yield Footer()
 
+
     def on_key(self, event: events.Key) -> None:
         try:
             if event.key == 'enter': self._compile(None)
         except NoMatches: pass
 
+
     @on(OptionList.OptionSelected, '#projects')
     def _select_project(self, event: OptionList.OptionSelected) -> None:
         self._selected_id = event.option.id
+
 
     @on(OptionList.OptionHighlighted, '#projects')
     def _select_project(self, event: OptionList.OptionHighlighted) -> None:
         self._selected_id = event.option.id
 
+
     @on(Button.Pressed, '#compile')
     def _compile(self, event: Button.Pressed) -> None:
         self.exit(result = self._selected_id)
 
+
     def action_compile(self) -> None:
         self._compile(None)
+
 
     def action_help(self) -> None:
         sidebar = self.query_one(Sidebar)
@@ -127,8 +104,10 @@ class ChoiceWindow(App):
             sidebar.add_class('-hidden')
             self.set_focus(self._list)
 
+
     def action_open_link(self, link: str) -> None:
         webbrowser.open(link)
+
 
     @on(Button.Pressed, '#exit')
     def _exit(self, event: Button.Pressed) -> None:

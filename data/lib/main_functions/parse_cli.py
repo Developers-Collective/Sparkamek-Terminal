@@ -6,6 +6,7 @@ from ..LogType import LogType
 from .format_msg import format_msg
 from .cmd import press_any_key
 from .load_config import load_config
+from .compile import compile
 from ..GlobalValues import GlobalValues
 from ..cli import CommandResult
 #----------------------------------------------------------------------

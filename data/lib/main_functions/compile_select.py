@@ -6,6 +6,7 @@ from ..LogType import LogType
 from .format_msg import format_msg
 from .load_config import load_config
 from .cmd import press_any_key, clear
+from .compile import compile
 from ..view import ChoiceWindow
 #----------------------------------------------------------------------
 

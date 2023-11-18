@@ -97,6 +97,12 @@ Button {
     align: center bottom;
 }
 
+#vertical-buttons {
+    width: 100%;
+    layout: vertical;
+    align: center middle;
+}
+
 Sidebar {
     width: 40;
     background: $panel;

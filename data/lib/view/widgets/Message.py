@@ -1,6 +1,9 @@
 #----------------------------------------------------------------------
 
     # Libraries
-from .ChoiceWindow import ChoiceWindow
-from .AddToPathWindow import AddToPathWindow, AddToPathResponse
+from textual.widgets import Static
+#----------------------------------------------------------------------
+
+    # Class
+class Message(Static): pass
 #----------------------------------------------------------------------

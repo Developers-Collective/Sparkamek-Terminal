@@ -1,5 +1,6 @@
 psutil==5.9.5
 textual==0.38.1
-colorama==0.4.6
+beartype==0.16.4
+plum-dispatch==2.2.2
 PyYAML==6.0
 pyelftools==0.29

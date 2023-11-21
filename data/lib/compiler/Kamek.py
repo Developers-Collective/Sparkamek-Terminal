@@ -2,13 +2,15 @@
 
     # Libraries
 from typing import Any
-import binascii, os, os.path, shutil, struct, subprocess, sys, yaml, elftools.elf.elffile, dataclasses, difflib, colorama
+from collections import namedtuple
+import binascii, os, os.path, shutil, struct, subprocess, sys, yaml, elftools.elf.elffile, dataclasses, difflib
 from .Hooks import Hooks as hooks
 from .MissingSymbol import MissingSymbol
 from .CannotFindFunctionException import CannotFindFunctionException
 from .MatchingFuncSymbol import MatchingFuncSymbol
 from .FuncSymbol import FuncSymbol
 
+from data.lib.cli.CLIConstants import CLIConstants
 from ..LogType import LogType
 from ..ProjectException import ProjectException
 from ..Signal import Signal
@@ -292,9 +294,11 @@ class KamekBuilder:
 
 
         lines = output.split('\n')
-        warnings: dict[str, list] = {}
-        errors: dict[str, list] = {}
-        first_error: tuple = None
+        datafile_struct = namedtuple('data_struct', ['file', 'line', 'code', 'pos1', 'pos2', 'details'])
+        data_struct = namedtuple('data_struct', ['line', 'code', 'pos1', 'pos2', 'details'])
+        warnings: dict[str, list[data_struct]] = {}
+        errors: dict[str, list[data_struct]] = {}
+        first_error: data_struct = None
 
         digits = '0123456789'
 
@@ -316,58 +320,37 @@ class KamekBuilder:
                 continue
 
 
-            if line.startswith('# Warning: '):
-                waves = line[11:]
-                details = []
+            for prefix, append_list in (('# Warning: ', warnings), ('#   Error: ', errors)):
+                if line.startswith(prefix):
+                    waves = line[len(prefix):]
+                    details = []
 
-                while lines[0].startswith('# '):
-                    line = lines.pop(0)[1:].strip()
-                    details.append(line)
+                    while lines[0].startswith('# '):
+                        line = lines.pop(0)[1:].strip()
+                        details.append(line)
 
-                if self._controller.config.fast_hack and fasthack_content is not None and isfasthack:
-                    index = fasthack_line
-                    while ((not fasthack_content[index].startswith('// [Fasthack File Info] ')) or (not fasthack_content[index - 1].startswith('//')) or (not fasthack_content[index + 1].startswith('//'))) and index > 1:
-                        index -= 1
+                    if self._controller.config.fast_hack and fasthack_content is not None and isfasthack:
+                        index = fasthack_line
+                        while ((not fasthack_content[index].startswith('// [Fasthack File Info] ')) or (not fasthack_content[index - 1].startswith('//')) or (not fasthack_content[index + 1].startswith('//'))) and index > 1:
+                            index -= 1
 
-                    fasthack_line_content = fasthack_content[index].replace('// [Fasthack File Info] ', '')
-                    true_line = fasthack_line - index - 3
+                        fasthack_line_content = fasthack_content[index].replace('// [Fasthack File Info] ', '')
+                        true_line = fasthack_line - index - 3
 
-                    file = fasthack_line_content
-                    fasthack_line = true_line
+                        file = fasthack_line_content
+                        fasthack_line = true_line
 
-                if file not in warnings: warnings[file] = []
-                warnings[file].append((fasthack_line, code, waves.find('^'), waves.rfind('^'), details))
+                    if file not in append_list: append_list[file] = []
 
-                continue
+                    wavef = waves.find('^')
+                    wavel = waves.rfind('^')
 
+                    append_list[file].append(data_struct(fasthack_line, code, wavef, wavel, details))
+                    if append_list is errors:
+                        if first_error is None: first_error = datafile_struct(file, fasthack_line, code, wavef, wavel, details)
 
-            if line.startswith('#   Error: '):
-                waves = line[11:]
-                details = []
+                    continue
 
-                while lines[0].startswith('# '):
-                    line = lines.pop(0)[1:].strip()
-                    details.append(line)
-
-                if self._controller.config.fast_hack and fasthack_content is not None and isfasthack:
-                    index = fasthack_line
-                    while ((not fasthack_content[index].startswith('// [Fasthack File Info] ')) or (not fasthack_content[index - 1].startswith('//')) or (not fasthack_content[index + 1].startswith('//'))) and index > 1:
-                        index -= 1
-
-                    fasthack_line_content = fasthack_content[index].replace('// [Fasthack File Info] ', '')
-                    true_line = fasthack_line - index - 3
-
-                    file = fasthack_line_content
-                    fasthack_line = true_line
-
-                if file not in errors: errors[file] = []
-                wavef = waves.find('^')
-                wavel = waves.rfind('^')
-
-                errors[file].append((fasthack_line, code, wavef, wavel, details))
-                if first_error is None: first_error = (file, fasthack_line, code, wavef, wavel, details)
-
-                continue
 
             if line.startswith('# -'): continue
 
@@ -394,44 +377,44 @@ class KamekBuilder:
         if warnings or errors: self._controller.log_info_all('&nbsp;', True)
 
         for file in warnings:
-            self._controller.log_warning(f'{colorama.Fore.LIGHTWHITE_EX}{file}{colorama.Style.RESET_ALL}:')
+            self._controller.log_warning(f'{CLIConstants.WhiteColor.terminal_color}{file}{CLIConstants.Reset}:')
 
             for fasthack_line, code, pos1, pos2, details in warnings[file]:
                 code_begin = code[:pos1]
                 code_middle = code[pos1:pos2 + 1]
                 code_end = code[pos2 + 1:]
-                self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{colorama.Style.RESET_ALL}', True)
-                self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{LogType.Warning.value}{code_middle}{colorama.Style.RESET_ALL}{code_end}', True)
+                self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{CLIConstants.Reset}', True)
+                self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.YellowColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', True)
                 for detail in details:
-                    self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{colorama.Style.RESET_ALL}', True)
+                    self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', True)
                 self._controller.log_warning('&nbsp;', True)
 
 
         if not first_error: return
 
         file, fasthack_line, code, pos1, pos2, details = first_error
-        self._controller.log_simple.emit(f'{colorama.Fore.LIGHTWHITE_EX}{file}{colorama.Style.RESET_ALL}:', LogType.Error, False)
+        self._controller.log_simple.emit(f'{CLIConstants.WhiteColor.terminal_color}{file}{CLIConstants.Reset}:', LogType.Error, False)
 
         code_begin = code[:pos1]
         code_middle = code[pos1:pos2 + 1]
         code_end = code[pos2 + 1:]
-        self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{colorama.Style.RESET_ALL}', LogType.Error, True)
-        self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{LogType.Error.value}{code_middle}{colorama.Style.RESET_ALL}{code_end}', LogType.Error, True)
+        self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{CLIConstants.Reset}', LogType.Error, True)
+        self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.RedColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', LogType.Error, True)
         for detail in details:
-            self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{colorama.Style.RESET_ALL}', LogType.Error, True)
+            self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', LogType.Error, True)
         self._controller.log_simple.emit('&nbsp;', LogType.Error, True)
 
         # for file in errors: # Removed all the errors because they are not needed
-        #     self._controller.log_complete.emit(f'{colorama.Fore.LIGHTWHITE_EX}{file}{colorama.Style.RESET_ALL}:', LogType.Error, False)
+        #     self._controller.log_complete.emit(f'{CLIConstants.WhiteColor.terminal_color}{file}{CLIConstants.Reset}:', LogType.Error, False)
 
         #     for fasthack_line, code, pos1, pos2, details in errors[file]:
         #         code_begin = code[:pos1]
         #         code_middle = code[pos1:pos2 + 1]
         #         code_end = code[pos2 + 1:]
-        #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{colorama.Style.RESET_ALL}', LogType.Error, True)
-        #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{LogType.Error.value}{code_middle}{colorama.Style.RESET_ALL}{code_end}', LogType.Error, True)
+        #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{CLIConstants.Reset}', LogType.Error, True)
+        #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.RedColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', LogType.Error, True)
         #         for detail in details:
-        #             self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{colorama.Style.RESET_ALL}', LogType.Error, True)
+        #             self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', LogType.Error, True)
         #         self._controller.log_complete.emit('&nbsp;', LogType.Error, True)
 
 
@@ -885,7 +868,7 @@ class KamekController:
 
 
     def add_missing_symbol(self, symbol: MissingSymbol) -> None:
-        self.log_complete.emit(f'The following reloc ({symbol.addr:x}) points to {symbol.target:d}: Is this right? {LogType.Warning.value}{symbol.name}{colorama.Style.RESET_ALL}', LogType.Warning, False)
+        self.log_complete.emit(f'The following reloc ({symbol.addr:x}) points to {symbol.target:d}: Is this right? {CLIConstants.YellowColor.terminal_color}{symbol.name}{CLIConstants.Reset}', LogType.Warning, False)
         if symbol.name not in self._missing_symbols: self._missing_symbols[symbol.name] = symbol
 
 

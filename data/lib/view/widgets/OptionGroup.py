@@ -1,6 +1,9 @@
 #----------------------------------------------------------------------
 
     # Libraries
-from .ChoiceWindow import ChoiceWindow
-from .AddToPathWindow import AddToPathWindow, AddToPathResponse
+from textual.containers import Container
+#----------------------------------------------------------------------
+
+    # Class
+class OptionGroup(Container): pass
 #----------------------------------------------------------------------

@@ -1,12 +1,11 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import colorama
-from typing import Callable
-
 from .Argument import Argument
 from .ArgumentType import ArgumentType
 from .CLIConstants import CLIConstants
+from .CLIException import CLIException
+from .CommandResult import CommandResult
 #----------------------------------------------------------------------
 
     # Class
@@ -40,6 +39,42 @@ class Command:
         return self._arguments
 
 
+    def _fix_name(self, name: str) -> str:
+        authorized = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
+        new_name = ''.join([char if char in authorized else '_' for char in name])
+        if new_name[0] in '0123456789': new_name = '_' + new_name
+
+        return new_name
+
+
+    def exec(self, arg_list: tuple[str], input_step: int) -> tuple[dict[str, str], tuple[str], int]:
+        results = {}
+        new_arg_list = list(arg_list)
+        step = input_step
+
+        if not new_arg_list[0] in self._aliases:
+            raise CLIException(f'Unknown command: {new_arg_list[0]}', step)
+        
+        new_arg_list.pop(0)
+        fixed_name = self._fix_name(self._name)
+        results[fixed_name] = CommandResult(self._name)
+        command_args = {}
+
+        for argument in self._arguments:
+            step += 1
+            if not new_arg_list:
+                if argument.type == ArgumentType.Optional: continue
+                else: raise CLIException(f'Missing argument: {argument.name}', step)
+
+            arg = new_arg_list.pop(0)
+            command_args[argument.name] = arg
+
+        if command_args:
+            results[fixed_name] = CommandResult(self._name, **command_args)
+
+        return results, tuple(new_arg_list), step
+
+
     def display(self) -> None:
         aliases = ', '.join(self._aliases)
         len_aliases = len(aliases)
@@ -49,14 +84,14 @@ class Command:
 
         desc = self._description.split('\n')
 
-        print(' ' * CLIConstants.SPACE_ALIGN, end = '')
-        print(f'{colorama.Fore.LIGHTYELLOW_EX}{aliases}{colorama.Style.RESET_ALL}', end = '')
-        print(' ' * (CLIConstants.SPACE_ARGS_ALIGN - len_aliases), end = '')
+        print(' ' * CLIConstants.SpaceAlign, end = '')
+        print(f'{CLIConstants.YellowColor.terminal_color}{aliases}{CLIConstants.Reset}', end = '')
+        print(' ' * (CLIConstants.SpaceArgsAlign - len_aliases), end = '')
         print(f'{arguments}', end = '')
-        print(' ' * (CLIConstants.SPACE_COMMENT_ALIGN - len_arguments), end = '')
-        print(f'{colorama.Fore.LIGHTWHITE_EX}{desc[0]}{colorama.Style.RESET_ALL}')
+        print(' ' * (CLIConstants.SpaceCommentAlign - len_arguments), end = '')
+        print(f'{CLIConstants.WhiteColor.terminal_color}{desc[0]}{CLIConstants.Reset}')
 
         for line in desc[1:]:
-            print(' ' * (CLIConstants.SPACE_COMMENT_ALIGN + CLIConstants.SPACE_ARGS_ALIGN + CLIConstants.SPACE_ALIGN), end = '')
-            print(f'{colorama.Fore.LIGHTWHITE_EX}{line}{colorama.Style.RESET_ALL}')
+            print(' ' * (CLIConstants.SpaceCommentAlign + CLIConstants.SpaceArgsAlign + CLIConstants.SpaceAlign), end = '')
+            print(f'{CLIConstants.WhiteColor.terminal_color}{line}{CLIConstants.Reset}')
 #----------------------------------------------------------------------

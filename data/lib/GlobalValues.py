@@ -1,14 +1,16 @@
 #----------------------------------------------------------------------
 
     # Libraries
-from enum import Enum
-from data.lib.utils.Color import Color
+import sys
+from .PlatformType import PlatformType
 #----------------------------------------------------------------------
 
     # Class
-class LogType(Enum):
-    Error = Color.from_hex('#E74856')
-    Warning = Color.from_hex('#F9F1A5')
-    Success = Color.from_hex('#16C60C')
-    Info = Color.from_hex('#61D6D6')
+class GlobalValues:
+    def __new__(cls) -> None:
+        return None
+    
+    simple_logs: bool = False
+    platform = PlatformType.from_str(sys.platform)
+    old_path: str = ''
 #----------------------------------------------------------------------

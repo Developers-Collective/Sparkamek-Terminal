@@ -11,4 +11,5 @@ from .ArgumentType import ArgumentType
 from .SectionType import SectionType
 from .CLIConstants import CLIConstants
 from .CLIException import CLIException
+from .CommandResult import CommandResult
 #----------------------------------------------------------------------

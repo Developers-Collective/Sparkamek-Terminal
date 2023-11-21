@@ -1,10 +1,10 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import colorama
-
 from .SectionType import SectionType
 from .Command import Command
+from .CLIConstants import CLIConstants
+from .CLIException import CLIException
 #----------------------------------------------------------------------
 
     # Class
@@ -47,6 +47,24 @@ class Section:
         return None
 
 
+    def exec(self, arg_list: tuple[str], input_step: int) -> tuple[dict[str, dict], tuple[str], int]:
+        results = {}
+        new_arg_list = list(arg_list)
+        step = input_step
+
+        for command in self._commands.values():
+            try:
+                result, new_arg_list, step = command.exec(new_arg_list, step + 1)
+                results |= result
+
+            except CLIException as e:
+                if self.type == SectionType.Mandatory:
+                    raise e
+                continue
+
+        return results, new_arg_list, step
+
+
     def display(self) -> None:
         self.display_name()
 
@@ -56,5 +74,5 @@ class Section:
 
     def display_name(self) -> None:
         print()
-        print(f'{colorama.Fore.LIGHTBLUE_EX}{self._name.replace("-", " ").title()}{colorama.Style.RESET_ALL}')
+        print(f'{CLIConstants.BlueColor.terminal_color}{self._name.replace("-", " ").title()}{CLIConstants.Reset}')
 #----------------------------------------------------------------------

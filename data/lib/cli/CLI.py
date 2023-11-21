@@ -1,16 +1,10 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import colorama
 from .Choice import Choice
-from .Section import Section
-from .SectionGroup import SectionGroup
-from .Command import Command
-from .Argument import Argument
-from .CLIConstants import CLIConstants
-from .SectionType import SectionType
-from .ArgumentType import ArgumentType
 from .CLIException import CLIException
+from .CommandResult import CommandResult
+from .CLIConstants import CLIConstants
 #----------------------------------------------------------------------
 
     # Class
@@ -45,88 +39,69 @@ class CLI:
         return self._choices.get(name, None)
 
 
-    def exec(self, *args: str) -> None:
+    def _arg_parser(self, args: tuple[str]) -> tuple[str]:
         args_list = list(args)
-        error = None
-        leave = False
-        kwargs = {}
-        print()
+        new_args_list = []
 
-        while args_list: # Very not optimal but it works (idk why it works but it works lol)
-            arg: str = args_list.pop(0)
+        while args_list:
+            arg = args_list.pop(0)
 
-            if not arg.startswith('-'):
-                print()
-                print(f'{colorama.Fore.LIGHTRED_EX}Unknown argument {arg}{colorama.Style.RESET_ALL}')
-                continue
+            if (arg.startswith('\'') or arg.startswith('"')):
+                if arg.endswith(arg[0]):
+                    arg = arg[1:-1]
 
-            for choice in self._choices.values():
-                try:
-                    for section_group in choice.section_groups:
-                        for section in section_group.sections:
-                            command = section.get_command(arg)
+                else:
+                    while args_list:
+                        arg += ' ' + args_list.pop(0)
+                        if arg.endswith(arg[0]):
+                            break
 
-                            if command is None:
-                                if section.type == SectionType.Mandatory:
-                                    raise CLIException(f'Missing mandatory section {section.name}')
-                                # raise CLIException(f'Unknown command {arg}')
-                                continue
-                            
-                            arguments = {}
-                            for argument in command.arguments:
-                                if argument.type == ArgumentType.Mandatory:
-                                    if not args_list:
-                                        raise CLIException(f'Missing mandatory argument {argument.name} for command {command.name}')
+                    if not arg.endswith(arg[0]): raise CLIException(f'Missing closing quote for argument {arg}', 0)
+                    arg = arg[1:-1]
 
-                                if argument.type == ArgumentType.Optional:
-                                    if not args_list:
-                                        break
+            new_args_list.append(arg)
 
-                                arg = args_list.pop(0)
-                                if (arg.startswith('\'') or arg.startswith('"')):
-                                    if arg.endswith(arg[0]):
-                                        arg = arg[1:-1]
-
-                                    else:
-                                        while args_list:
-                                            arg += ' ' + args_list.pop(0)
-                                            if arg.endswith(arg[0]):
-                                                break
-
-                                        if not arg.endswith(arg[0]): return print(f'{colorama.Fore.LIGHTRED_EX}Missing closing quote for argument {argument.name}: {arg}{colorama.Style.RESET_ALL}')
-                                        arg = arg[1:-1]
-
-                                arguments[argument.name] = arg
-                                continue
-
-                            if kwargs.get(section.name.replace('-', '_'), None) is None: kwargs[section.name.replace('-', '_')] = {}
-                            kwargs[section.name.replace('-', '_')][command.name.replace('-', '_')] = arguments.copy()
+        return tuple(new_args_list)
 
 
-                    if args_list:
-                        leave = True
-                        raise CLIException(f'Unknown argument {args_list[0]}')
+    def _exec_exceptions_handler(exceptions: dict[str, CLIException]) -> None:
+        def single_exception_handler(exception: CLIException) -> None:
+            print(f'{CLIConstants.ErrorColor.terminal_color}{exception}{CLIConstants.Reset}')
 
-                    choice.exec(**kwargs)
-                    return
+        if not exceptions:
+            return print(f'{CLIConstants.ErrorColor.terminal_color}An error occured{CLIConstants.Reset}')
 
-                except CLIException as e:
-                    error = e
-                    if not leave: continue
-                    else: break
+        max_steps = max([e.step for e in exceptions.values()])
+        new_exceptions = dict(filter(lambda e: e[1].step >= max_steps, exceptions.items()))
 
-            if leave: break
+        if new_exceptions:
+            for exception in new_exceptions.values():
+                single_exception_handler(exception)
 
-        if not error:
-            print(f'{colorama.Fore.LIGHTRED_EX}An error occured{colorama.Style.RESET_ALL}')
             return
 
-        print(f'{colorama.Fore.LIGHTRED_EX}{error}{colorama.Style.RESET_ALL}')
+        for exception in exceptions.values():
+            single_exception_handler(exception)
 
 
-    def display(self, help: str = None) -> None:
-        if not help.get('help', None):
-            print(f'{colorama.Fore.LIGHTBLUE_EX}Usage{colorama.Style.RESET_ALL}')
+    def exec(self, *args: str) -> None:
+        args_list = tuple(args)
+        exceptions: dict[str, CLIException] = {}
+        print()
+
+        try: args_list = self._arg_parser(args_list)
+        except CLIException as e: return print(f'{CLIConstants.ErrorColor.terminal_color}{e}{CLIConstants.Reset}')
+
+        for choice in self._choices.values():
+            try: return choice.exec(args_list)
+            except CLIException as e: exceptions[choice.name] = e
+
+        self._exec_exceptions_handler(exceptions)
+
+
+    def display(self, help: CommandResult = None) -> None:
+        if not help.exists('command'):
+            print(f'{CLIConstants.BlueColor.terminal_color}Usage{CLIConstants.Reset}')
 
             for choice in self._choices.values():
                 choice.display_usage(self._executable)
@@ -136,7 +111,7 @@ class CLI:
 
             return
 
-        command_name = help['help']['command']
+        command_name = help.command
         for choice in self._choices.values():
             for section_group in choice.section_groups:
                 for section in section_group.sections:
@@ -144,5 +119,5 @@ class CLI:
                         command.display()
                         return
 
-        print(f'{colorama.Fore.LIGHTRED_EX}Unknown command {command_name}{colorama.Style.RESET_ALL}')
+        print(f'{CLIConstants.ErrorColor.terminal_color}Unknown command {command_name}{CLIConstants.Reset}')
 #----------------------------------------------------------------------

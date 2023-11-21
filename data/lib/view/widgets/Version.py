@@ -1,14 +1,13 @@
 #----------------------------------------------------------------------
 
     # Libraries
-from enum import Enum
-from data.lib.utils.Color import Color
+from data.lib.version import VERSION
+from textual.widgets import Static
+from rich.console import RenderableType
 #----------------------------------------------------------------------
 
     # Class
-class LogType(Enum):
-    Error = Color.from_hex('#E74856')
-    Warning = Color.from_hex('#F9F1A5')
-    Success = Color.from_hex('#16C60C')
-    Info = Color.from_hex('#61D6D6')
+class Version(Static):
+    def render(self) -> RenderableType:
+        return f'[b]{VERSION[0]}\n{VERSION[1]}[/b]'
 #----------------------------------------------------------------------

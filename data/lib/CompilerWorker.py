@@ -1,11 +1,12 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import os, yaml, sys, difflib, colorama, timeit
+import os, yaml, sys, difflib, timeit
 from pathlib import Path
 
 from data.lib.LogType import LogType
 from data.lib.ProjectException import ProjectException
+from data.lib.cli.CLIConstants import CLIConstants
 from .compiler import *
 from .Signal import Signal
 #----------------------------------------------------------------------
@@ -128,8 +129,8 @@ class CompilerWorker:
 
             else:
                 self.log_error(f'Cannot find CodeWarrior at "{self._cwd}/tools/cw".\nPlease make sure CodeWarrior is installed correctly into the tools folder.', False)
-                self.log_error(f'You can find the installer here: {colorama.Fore.LIGHTMAGENTA_EX}\"http://cache.nxp.com/lgfiles/devsuites/PowerPC/CW55xx_v2_10_SE.exe?WT_TYPE=IDE%20-%20Debug,%20Compile%20and%20Build%20Tools&WT_VENDOR=FREESCALE&WT_FILE_FORMAT=exe&WT_ASSET=Downloads&fileExt=.exe\"{colorama.Style.RESET_ALL}NXP \'CodeWarrior Special Edition\' for MPC55xx/MPC56xx v2.10.', True)
-                self.log_error(f'If this direct link doesn\'t work, the original page is {colorama.Fore.LIGHTMAGENTA_EX}\"http://web.archive.org/web/20160602205749/http://www.nxp.com/products/software-and-tools/software-development-tools/codewarrior-development-tools/downloads/special-edition-software:CW_SPECIALEDITIONS\"{colorama.Style.RESET_ALL}available on the Internet Archive.', True)
+                self.log_error(f'You can find the installer here: {CLIConstants.MagentaColor.terminal_color}\"http://cache.nxp.com/lgfiles/devsuites/PowerPC/CW55xx_v2_10_SE.exe?WT_TYPE=IDE%20-%20Debug,%20Compile%20and%20Build%20Tools&WT_VENDOR=FREESCALE&WT_FILE_FORMAT=exe&WT_ASSET=Downloads&fileExt=.exe\"{CLIConstants.Reset}NXP \'CodeWarrior Special Edition\' for MPC55xx/MPC56xx v2.10.', True)
+                self.log_error(f'If this direct link doesn\'t work, the original page is {CLIConstants.MagentaColor.terminal_color}\"http://web.archive.org/web/20160602205749/http://www.nxp.com/products/software-and-tools/software-development-tools/codewarrior-development-tools/downloads/special-edition-software:CW_SPECIALEDITIONS\"{CLIConstants.Reset}available on the Internet Archive.', True)
                 return self.error.emit(f'Cannot find CodeWarrior at "{self._cwd}/tools/cw".')
 
 
@@ -143,7 +144,7 @@ class CompilerWorker:
                 mw_path = cw_path,
                 filt_path = 'tools/c++filt/',
                 fast_hack = True,
-                nintendo_driver_mode = self._data.get('nintendoDriverMode', None),
+                nintendo_driver_mode = self._data.get('nintendoDriverMode', False),
                 **kamekopts
             )
         )
@@ -153,7 +154,7 @@ class CompilerWorker:
         try: missing_symbols, func_symbols = self._kamek_controller.run()
 
         except CannotFindFunctionException as e:
-            self.log_error(f'Cannot find function: "{LogType.Error.value}{e.not_found_func}{colorama.Style.RESET_ALL}"', False)
+            self.log_error(f'Cannot find function: "{LogType.Error.value}{e.not_found_func}{CLIConstants.Reset}"', False)
 
             def make_diff(a: str, b: str) -> str:
                 new_s = ''
@@ -168,7 +169,7 @@ class CompilerWorker:
                 return new_s
 
             def make_span(s: str, log_type: LogType) -> str:
-                return f'{log_type.value}{s}{colorama.Style.RESET_ALL}'
+                return f'{log_type.value}{s}{CLIConstants.Reset}'
 
             if len(e.func_symbols) == 1:
                 self.log_error(f'&nbsp;&nbsp;Did you mean "{make_diff(e.not_found_func, e.func_symbols[0].name)}"?', True)
@@ -190,8 +191,8 @@ class CompilerWorker:
                 func = lambda s, inv: self.log_complete.emit(s, LogType.Error, inv)
                 self.log_error('An Driver Error occured while calling the compiler.', False)
                 self.log_error('Please make sure the right version of CodeWarrior is installed into the tools folder.', True)
-                self.log_error(f'You can find the installer here: {colorama.Fore.LIGHTMAGENTA_EX}\"http://cache.nxp.com/lgfiles/devsuites/PowerPC/CW55xx_v2_10_SE.exe?WT_TYPE=IDE%20-%20Debug,%20Compile%20and%20Build%20Tools&WT_VENDOR=FREESCALE&WT_FILE_FORMAT=exe&WT_ASSET=Downloads&fileExt=.exe\"{colorama.Style.RESET_ALL}NXP \'CodeWarrior Special Edition\' for MPC55xx/MPC56xx v2.10.', True)
-                self.log_error(f'If this direct link doesn\'t work, the original page is {colorama.Fore.LIGHTMAGENTA_EX}\"http://web.archive.org/web/20160602205749/http://www.nxp.com/products/software-and-tools/software-development-tools/codewarrior-development-tools/downloads/special-edition-software:CW_SPECIALEDITIONS\"{colorama.Style.RESET_ALL}available on the Internet Archive.', True)
+                self.log_error(f'You can find the installer here: {CLIConstants.MagentaColor.terminal_color}\"http://cache.nxp.com/lgfiles/devsuites/PowerPC/CW55xx_v2_10_SE.exe?WT_TYPE=IDE%20-%20Debug,%20Compile%20and%20Build%20Tools&WT_VENDOR=FREESCALE&WT_FILE_FORMAT=exe&WT_ASSET=Downloads&fileExt=.exe\"{CLIConstants.Reset}NXP \'CodeWarrior Special Edition\' for MPC55xx/MPC56xx v2.10.', True)
+                self.log_error(f'If this direct link doesn\'t work, the original page is {CLIConstants.MagentaColor.terminal_color}\"http://web.archive.org/web/20160602205749/http://www.nxp.com/products/software-and-tools/software-development-tools/codewarrior-development-tools/downloads/special-edition-software:CW_SPECIALEDITIONS\"{CLIConstants.Reset}available on the Internet Archive.', True)
 
             else:
                 func = self.log_error
@@ -240,7 +241,7 @@ class CompilerWorker:
             self.log_simple.emit('Your code is missing the following symbols:', LogType.Warning, False)
 
             for symbol in missing_symbols:
-                self.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;• {LogType.Warning.value}{symbol.name}{colorama.Style.RESET_ALL}', LogType.Warning, True)
+                self.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;• {LogType.Warning.value}{symbol.name}{CLIConstants.Reset}', LogType.Warning, True)
 
 
         if path := self._data.get('outputFolder', None):

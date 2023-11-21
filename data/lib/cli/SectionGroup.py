@@ -1,8 +1,6 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import colorama
-
 from .CLIConstants import CLIConstants
 from .Section import Section
 #----------------------------------------------------------------------
@@ -35,13 +33,25 @@ class SectionGroup:
         return None
 
 
+    def exec(self, arg_list: tuple[str], input_step: int) -> tuple[dict[str, dict], tuple[str], int]:
+        results = {}
+        new_arg_list = list(arg_list)
+        step = input_step
+        
+        for section in self._sections:
+            result, new_arg_list, step = section.exec(new_arg_list, step + 1)
+            results |= result
+
+        return results, new_arg_list, step
+
+
     def display(self) -> None:
         for section in self._sections:
             section.display()
 
     def display_usage(self, executable: str) -> None:
-        print(' ' * CLIConstants.SPACE_ALIGN, end = '')
-        print(f'{colorama.Fore.LIGHTWHITE_EX}"{executable}"{colorama.Style.RESET_ALL}', end = ' ')
+        print(' ' * CLIConstants.SpaceAlign, end = '')
+        print(f'{CLIConstants.WhiteColor.terminal_color}"{executable}"{CLIConstants.Reset}', end = ' ')
 
         for section in self._sections:
             print(f'{section.type.value.replace("%s", section.name.replace("-", " ").title())}', end = ' ')

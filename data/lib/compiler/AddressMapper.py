@@ -26,14 +26,24 @@ class AddressMapper:
             return f'<mapping {self!s}>'
 
 
-    _base: 'AddressMapper' = None
+    # base: 'AddressMapper' = None
 
     def __init__(self, base: 'AddressMapper' = None) -> None:
         super(AddressMapper, self).__init__()
         self._mappings: list[AddressMapper.Mapping] = []
+        self._base: AddressMapper = base
 
 
-    def add_mapping(self, start: int, end: int, delta: int):
+    @property
+    def base(self) -> 'AddressMapper':
+        return self._base
+    
+    @base.setter
+    def base(self, value: 'AddressMapper') -> None:
+        self._base = value
+
+
+    def add_mapping(self, start: int, end: int, delta: int) -> None:
         if start > end:
             raise ValueError(f'cannot map {start:08X}-{end:08X} as start is higher than end')
 
@@ -45,15 +55,45 @@ class AddressMapper:
 
         self._mappings.append(new_mapping)
 
-    def remap(self, input: int):
-        if self._base is not None:
-            input = self._base.remap(input)
+    def remap(self, input: int) -> int:
+        if self.base is not None:
+            input = self.base.remap(input)
 
         for mapping in self._mappings:
             if mapping.start <= input <= mapping.end:
+                # print(f'[REMAP] {mapping.start:X}-{mapping.end:X}: {mapping.delta:X} => {input:X} => {input + mapping.delta:X}')
                 return input + mapping.delta
 
         return input
+
+    def demap(self, input: int) -> int:
+        for mapping in self._mappings:
+            if (mapping.start + mapping.delta) <= input <= (mapping.end + mapping.delta):
+                input = input - mapping.delta
+                break
+
+        if self.base is not None:
+            input = self.base.demap(input)
+
+        return input
+
+    def demap_reverse(self, input: int) -> int:
+        for mapping in self._mappings:
+            if mapping.start <= input <= mapping.end:
+                # print(f'[DEMAP] {mapping.start:X}-{mapping.end:X}: {mapping.delta:X} => {input:X} => {input + mapping.delta:X}')
+                input = input + mapping.delta
+                break
+
+        if self.base is not None:
+            input = self.base.demap_reverse(input)
+
+        return input
+
+    def items(self) -> list[Mapping]:
+        return self._mappings.copy()
+
+    def __str__(self) -> str:
+        return '\n'.join([str(x) for x in self._mappings])
 
 
 
@@ -85,8 +125,9 @@ class AddressMapperController:
             raise ProjectException(f'Unable to find "{LogType.Error.value}versions-nsmbw.txt{colorama.Style.RESET_ALL}" at "{self._cwd}/tools"', LogType.Error)
 
         with open(path, 'r', encoding = 'utf-8') as infile:
-            try: mappers = self._read_version_info(infile)
+            try: mappers = AddressMapperController.read_version_info(infile)
             except ValueError as e: raise ProjectException(str(e), LogType.Error)
+            except ProjectException as e: raise e
 
         if not os.path.isdir(f'{self._cwd}/processed'):
             os.mkdir(f'{self._cwd}/processed')
@@ -102,7 +143,8 @@ class AddressMapperController:
         except FileNotFoundError as e: raise ProjectException(str(e), LogType.Error)
 
 
-    def _read_version_info(self, f: typing.TextIO) -> dict[str, AddressMapper]:
+    @staticmethod
+    def read_version_info(f: typing.TextIO) -> dict[str, AddressMapper]:
         mappers = {'default': AddressMapper()}
 
         comment_regex = re.compile(r'^\s*#')
@@ -139,7 +181,7 @@ class AddressMapperController:
                     base_name = match.group(1)
                     if base_name not in mappers:
                         raise ValueError(f'Version {current_version_name} extends unknown version {LogType.Error.value}{base_name}{colorama.Style.RESET_ALL}')
-                    if current_version._base is not None:
+                    if current_version.base is not None:
                         raise ValueError(f'Version {current_version_name} already extends a version')
 
                     current_version._base = mappers[base_name]
@@ -160,9 +202,7 @@ class AddressMapperController:
                     current_version.add_mapping(start_address, end_address, delta)
                     continue
 
-            ret = (f'Unrecognised line in versions file: {LogType.Warning.value}{line}{colorama.Style.RESET_ALL}', LogType.Warning, False)
-            self.log_simple.emit(*ret)
-            self.log_complete.emit(*ret)
+            raise ProjectException(f'Unrecognised line in versions file: {LogType.Error.value}{line}{colorama.Style.RESET_ALL}', LogType.Error)
 
         return mappers
 

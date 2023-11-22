@@ -54,8 +54,14 @@ def apply_path(path_values: list[str], cwd: str) -> None:
             else:
                 text += f'\n\nexport PATH="{path_values_str}:$PATH"\n'
 
-            with open(f'{os.path.expanduser("~")}/.bashrc', 'w', encoding = 'utf8') as f:
-                f.write(text)
+            try:
+                with open(f'{os.path.expanduser("~")}/.bashrc', 'w', encoding = 'utf8') as f:
+                    f.write(text)
+
+                print(format_msg('Done!', LogType.Success))
+
+            except Exception as e:
+                print(format_msg(f'Unable to add to path: {e}', LogType.Error))
 
         case _:
             print(format_msg('This feature is not available on this platform.', LogType.Error))

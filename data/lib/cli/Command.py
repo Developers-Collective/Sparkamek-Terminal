@@ -85,13 +85,13 @@ class Command:
         desc = self._description.split('\n')
 
         print(' ' * CLIConstants.SpaceAlign, end = '')
-        print(f'{CLIConstants.YellowColor.terminal_color}{aliases}{CLIConstants.Reset}', end = '')
+        print(f'{CLIConstants.CommandColor.terminal_color}{aliases}{CLIConstants.Reset}', end = '')
         print(' ' * (CLIConstants.SpaceArgsAlign - len_aliases), end = '')
         print(f'{arguments}', end = '')
         print(' ' * (CLIConstants.SpaceCommentAlign - len_arguments), end = '')
-        print(f'{CLIConstants.WhiteColor.terminal_color}{desc[0]}{CLIConstants.Reset}')
+        print(f'{CLIConstants.FontColor.terminal_color}{desc[0]}{CLIConstants.Reset}')
 
         for line in desc[1:]:
             print(' ' * (CLIConstants.SpaceCommentAlign + CLIConstants.SpaceArgsAlign + CLIConstants.SpaceAlign), end = '')
-            print(f'{CLIConstants.WhiteColor.terminal_color}{line}{CLIConstants.Reset}')
+            print(f'{CLIConstants.FontColor.terminal_color}{line}{CLIConstants.Reset}')
 #----------------------------------------------------------------------

@@ -74,5 +74,5 @@ class Section:
 
     def display_name(self) -> None:
         print()
-        print(f'{CLIConstants.BlueColor.terminal_color}{self._name.replace("-", " ").title()}{CLIConstants.Reset}')
+        print(f'{CLIConstants.TitleColor.terminal_color}{self._name.replace("-", " ").title()}{CLIConstants.Reset}')
 #----------------------------------------------------------------------

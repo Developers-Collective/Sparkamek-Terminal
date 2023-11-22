@@ -377,14 +377,14 @@ class KamekBuilder:
         if warnings or errors: self._controller.log_info_all('&nbsp;', True)
 
         for file in warnings:
-            self._controller.log_warning(f'{CLIConstants.WhiteColor.terminal_color}{file}{CLIConstants.Reset}:')
+            self._controller.log_warning(f'{CLIConstants.FontColor.terminal_color}{file}{CLIConstants.Reset}:')
 
             for fasthack_line, code, pos1, pos2, details in warnings[file]:
                 code_begin = code[:pos1]
                 code_middle = code[pos1:pos2 + 1]
                 code_end = code[pos2 + 1:]
                 self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{CLIConstants.Reset}', True)
-                self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.YellowColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', True)
+                self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.CommandColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', True)
                 for detail in details:
                     self._controller.log_warning(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', True)
                 self._controller.log_warning('&nbsp;', True)
@@ -393,13 +393,13 @@ class KamekBuilder:
         if not first_error: return
 
         file, fasthack_line, code, pos1, pos2, details = first_error
-        self._controller.log_simple.emit(f'{CLIConstants.WhiteColor.terminal_color}{file}{CLIConstants.Reset}:', LogType.Error, False)
+        self._controller.log_simple.emit(f'{CLIConstants.FontColor.terminal_color}{file}{CLIConstants.Reset}:', LogType.Error, False)
 
         code_begin = code[:pos1]
         code_middle = code[pos1:pos2 + 1]
         code_end = code[pos2 + 1:]
         self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{CLIConstants.Reset}', LogType.Error, True)
-        self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.RedColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', LogType.Error, True)
+        self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.ErrorColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', LogType.Error, True)
         for detail in details:
             self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', LogType.Error, True)
         self._controller.log_simple.emit('&nbsp;', LogType.Error, True)
@@ -868,7 +868,7 @@ class KamekController:
 
 
     def add_missing_symbol(self, symbol: MissingSymbol) -> None:
-        self.log_complete.emit(f'The following reloc ({symbol.addr:x}) points to {symbol.target:d}: Is this right? {CLIConstants.YellowColor.terminal_color}{symbol.name}{CLIConstants.Reset}', LogType.Warning, False)
+        self.log_complete.emit(f'The following reloc ({symbol.addr:x}) points to {symbol.target:d}: Is this right? {CLIConstants.CommandColor.terminal_color}{symbol.name}{CLIConstants.Reset}', LogType.Warning, False)
         if symbol.name not in self._missing_symbols: self._missing_symbols[symbol.name] = symbol
 
 

@@ -12,11 +12,11 @@ from data.lib.cli.CLIConstants import CLIConstants
 def mainview(executable: str, callback: Callable):
     cli_ = CLI(
         executable,
-        f'{CLIConstants.CyanColor.terminal_color}Sparkamek Terminal'
-        f'{CLIConstants.GrayColor.terminal_color} | '
-        f'{CLIConstants.GreenColor.terminal_color}{VERSION[0]}'
-        f'{CLIConstants.GrayColor.terminal_color} • '
-        f'{CLIConstants.GreenColor.terminal_color}{VERSION[1]}'
+        f'{CLIConstants.VersionTitleColor.terminal_color}Sparkamek Terminal'
+        f'{CLIConstants.VersionSeparatorColor.terminal_color} | '
+        f'{CLIConstants.VersionDigitColor.terminal_color}{VERSION[0]}'
+        f'{CLIConstants.VersionSeparatorColor.terminal_color} • '
+        f'{CLIConstants.VersionDigitColor.terminal_color}{VERSION[1]}'
         f'{CLIConstants.Reset}'
     )
 

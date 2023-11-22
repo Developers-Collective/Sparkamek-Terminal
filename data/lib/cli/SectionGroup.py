@@ -51,7 +51,7 @@ class SectionGroup:
 
     def display_usage(self, executable: str) -> None:
         print(' ' * CLIConstants.SpaceAlign, end = '')
-        print(f'{CLIConstants.WhiteColor.terminal_color}"{executable}"{CLIConstants.Reset}', end = ' ')
+        print(f'{CLIConstants.FontColor.terminal_color}"{executable}"{CLIConstants.Reset}', end = ' ')
 
         for section in self._sections:
             print(f'{section.type.value.replace("%s", section.name.replace("-", " ").title())}', end = ' ')

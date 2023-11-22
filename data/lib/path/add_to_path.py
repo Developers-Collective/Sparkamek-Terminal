@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import os, json
+import os, json, re
 from ..PlatformType import PlatformType
 from ..view import AddToPathWindow, AddToPathResponse
 from ..GlobalValues import GlobalValues
@@ -24,14 +24,13 @@ def add_to_path() -> None:
         save_config()
 
     user = os.getlogin()
+    cwd = os.getcwd()
 
     if not config['global']['addToPath'].get(user, True): return
 
     match GlobalValues.platform:
         case PlatformType.Windows:
             import winreg
-
-            cwd = os.getcwd()
 
             current_user = winreg.HKEY_CURRENT_USER
             reg_path = winreg.OpenKey(current_user, r'Environment')
@@ -40,8 +39,21 @@ def add_to_path() -> None:
             path_values = [p for p in user_path[0].split(';') if p != '']
             winreg.CloseKey(reg_path)
 
+
+        case PlatformType.Linux:
+            with open('~/.bashrc', 'r', encoding = 'utf8') as f:
+                text = f.read()
+
+            pattern = re.compile(r'export PATH[ \t\n]*=[ \t\n]*"([^"]*)"')
+            path_values = []
+
+            if path_result := pattern.search(text):
+                path_values = text[path_result.start(1):path_result.end(1)].split(':')
+
+
         case _:
             return
+
 
     if cwd in path_values:
         config['global']['addToPath'][user] = False

@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------
 
     # Libraries
-import os, subprocess
+import os, subprocess, re
 from ..PlatformType import PlatformType
 from ..main_functions import format_msg
 from ..LogType import LogType
@@ -37,8 +37,29 @@ def apply_path(path_values: list[str], cwd: str) -> None:
 
             else: print(format_msg('Done!', LogType.Success))
 
+
+        case PlatformType.Linux:
+            with open('~/.bashrc', 'r', encoding = 'utf8') as f:
+                text = f.read()
+
+            path_values.insert(0, cwd)
+
+            pattern = re.compile(r'(export PATH[ \t\n]*=[ \t\n]*")([^"]*)"')
+
+            path_values_str = ':'.join(path_values)
+
+            if path_result := pattern.search(text):
+                text[path_result.start(2):path_result.end(2)] = path_values_str
+
+            else:
+                text += f'\n\nexport PATH="{path_values_str}:$PATH"\n'
+
+            with open('~/.bashrc', 'w', encoding = 'utf8') as f:
+                f.write(text)
+
         case _:
             print(format_msg('This feature is not available on this platform.', LogType.Error))
+
 
     press_any_key()
     clear()

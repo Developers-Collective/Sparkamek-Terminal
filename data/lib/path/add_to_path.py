@@ -41,7 +41,7 @@ def add_to_path() -> None:
 
 
         case PlatformType.Linux:
-            with open('~/.bashrc', 'r', encoding = 'utf8') as f:
+            with open(f'{os.path.expanduser("~")}/.bashrc', 'r', encoding = 'utf8') as f:
                 text = f.read()
 
             pattern = re.compile(r'export PATH[ \t\n]*=[ \t\n]*"([^"]*)"')

@@ -39,7 +39,7 @@ def apply_path(path_values: list[str], cwd: str) -> None:
 
 
         case PlatformType.Linux:
-            with open('~/.bashrc', 'r', encoding = 'utf8') as f:
+            with open(f'{os.path.expanduser("~")}/.bashrc', 'r', encoding = 'utf8') as f:
                 text = f.read()
 
             path_values.insert(0, cwd)
@@ -54,7 +54,7 @@ def apply_path(path_values: list[str], cwd: str) -> None:
             else:
                 text += f'\n\nexport PATH="{path_values_str}:$PATH"\n'
 
-            with open('~/.bashrc', 'w', encoding = 'utf8') as f:
+            with open(f'{os.path.expanduser("~")}/.bashrc', 'w', encoding = 'utf8') as f:
                 f.write(text)
 
         case _:

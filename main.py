@@ -35,7 +35,6 @@ if __name__ == '__main__':
         except Exception as e:
             print(format_msg(f'Unable to add to path: {e}', LogType.Error))
             press_any_key()
-            clear()
 
         compile_select()
 #----------------------------------------------------------------------

@@ -63,6 +63,24 @@ def apply_path(path_values: list[str], cwd: str) -> None:
             except Exception as e:
                 print(format_msg(f'Unable to add to path: {e}', LogType.Error))
 
+
+        case PlatformType.MacOS:
+            with open(f'{os.path.expanduser("~")}/.bash_profile', 'r', encoding = 'utf8') as f:
+                text = f.read()
+
+            path_values.insert(0, cwd)
+
+            pattern = re.compile(r'(export PATH[ \t\n]*=[ \t\n]*")([^"]*)"')
+
+            path_values_str = ':'.join(path_values)
+
+            if path_result := pattern.search(text):
+                text[path_result.start(2):path_result.end(2)] = path_values_str
+
+            else:
+                text += f'\n\nexport PATH="{path_values_str}:$PATH"\n'
+
+
         case _:
             print(format_msg('This feature is not available on this platform.', LogType.Error))
 

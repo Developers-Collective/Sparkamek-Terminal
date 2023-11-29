@@ -51,6 +51,17 @@ def add_to_path() -> None:
                 path_values = text[path_result.start(1):path_result.end(1)].split(':')
 
 
+        case PlatformType.MacOS:
+            with open(f'{os.path.expanduser("~")}/.bash_profile', 'r', encoding = 'utf8') as f:
+                text = f.read()
+
+            pattern = re.compile(r'export PATH[ \t\n]*=[ \t\n]*"([^"]*)"')
+            path_values = []
+
+            if path_result := pattern.search(text):
+                path_values = text[path_result.start(1):path_result.end(1)].split(':')
+
+
         case _:
             return
 

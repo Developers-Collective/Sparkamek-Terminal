@@ -12,6 +12,8 @@ from ..LogType import LogType
 
     # Function
 def add_to_path() -> None:
+    if not os.path.exists('./config.json'): return
+
     def save_config() -> None:
         with open('./config.json', 'w', encoding = 'utf8') as f:
             json.dump(config, f, indent = 4)

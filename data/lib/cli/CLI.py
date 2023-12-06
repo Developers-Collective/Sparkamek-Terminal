@@ -65,7 +65,7 @@ class CLI:
         return tuple(new_args_list)
 
 
-    def _exec_exceptions_handler(exceptions: dict[str, CLIException]) -> None:
+    def _exec_exceptions_handler(self, exceptions: dict[str, CLIException]) -> None:
         def single_exception_handler(exception: CLIException) -> None:
             print(f'{CLIConstants.ErrorLogColor.terminal_color}{exception}{CLIConstants.Reset}')
 
@@ -76,8 +76,12 @@ class CLI:
         new_exceptions = dict(filter(lambda e: e[1].step >= max_steps, exceptions.items()))
 
         if new_exceptions:
+            done_values = []
             for exception in new_exceptions.values():
+                if exception.message in done_values: continue
+
                 single_exception_handler(exception)
+                done_values.append(exception.message)
 
             return
 
@@ -101,11 +105,11 @@ class CLI:
 
 
     def display(self, help: CommandResult = None) -> None:
+        max_length = CommandMaxLengthStruct.get_max(*(choice.get_display_length() for choice in self._choices.values()))
+        max_length.apply_max_width()
+
         if not help.exists('command'):
             print(f'{CLIConstants.TitleColor.terminal_color}Usage{CLIConstants.Reset}')
-
-            max_length = CommandMaxLengthStruct.get_max(*(choice.get_display_length() for choice in self._choices.values()))
-            max_length.apply_max_width()
 
             for choice in self._choices.values():
                 choice.display_usage(self._executable)
@@ -120,7 +124,7 @@ class CLI:
             for section_group in choice.section_groups:
                 for section in section_group.sections:
                     if command := section.get_command(command_name):
-                        command.display()
+                        command.display(max_length)
                         return
 
         print(f'{CLIConstants.ErrorLogColor.terminal_color}Unknown command {command_name}{CLIConstants.Reset}')

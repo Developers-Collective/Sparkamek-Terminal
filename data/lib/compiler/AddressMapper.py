@@ -185,7 +185,7 @@ class AddressMapperController:
                     if current_version.base is not None:
                         raise ValueError(f'Version {current_version_name} already extends a version')
 
-                    current_version._base = mappers[base_name]
+                    current_version.base = mappers[base_name]
                     continue
 
                 match = mapping_regex.match(line)

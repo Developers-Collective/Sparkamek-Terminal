@@ -10,6 +10,7 @@ from data.lib.cli.CLIConstants import CLIConstants
 
     # Functions
 def mainview(executable: str, callback: Callable):
+    # Setup
     cli_ = CLI(
         executable,
         f'{CLIConstants.VersionTitleColor.terminal_color}Sparkamek Terminal'
@@ -21,6 +22,7 @@ def mainview(executable: str, callback: Callable):
     )
 
 
+    # Help
     help_choice = Choice(
         name = 'help',
         callback = cli_.display,
@@ -45,6 +47,7 @@ def mainview(executable: str, callback: Callable):
     help_section_group.add_section(help_section)
 
 
+    # Version
     version_choice = Choice(
         name = 'version',
         callback = lambda version: print(cli_.version)
@@ -68,19 +71,20 @@ def mainview(executable: str, callback: Callable):
     version_section_group.add_section(version_section)
 
 
-    options_choice = Choice(
+    # Compile
+    compile_choice = Choice(
         name = 'options',
         callback = lambda **kwargs: callback(**kwargs)
     )
-    cli_.add_choice(options_choice)
+    cli_.add_choice(compile_choice)
 
-    options_section_group = SectionGroup(
-        'Options',
+    compile_section_group = SectionGroup(
+        'project-options',
     )
-    options_choice.add_section_group(options_section_group)
+    compile_choice.add_section_group(compile_section_group)
 
-    options_section = Section(
-        'options',
+    compile_options_section = Section(
+        'project-options',
         SectionType.Optional,
         Command(
             name = 'add-project',
@@ -89,7 +93,7 @@ def mainview(executable: str, callback: Callable):
             # arguments = (Argument('name', ArgumentType.Mandatory), Argument('path', ArgumentType.Mandatory))
         )
     )
-    options_section_group.add_section(options_section)
+    compile_section_group.add_section(compile_options_section)
 
     config_file = Section(
         'config-file',
@@ -101,7 +105,50 @@ def mainview(executable: str, callback: Callable):
             arguments = (Argument('path', ArgumentType.Mandatory),)
         )
     )
-    options_section_group.add_section(config_file)
+    compile_section_group.add_section(config_file)
 
+
+    # Address Converter
+    address_converter_choice = Choice(
+        name = 'address-converter',
+        callback = lambda **kwargs: print(kwargs)
+    )
+    cli_.add_choice(address_converter_choice)
+
+    address_converter_section_group = SectionGroup(
+        'address-converter',
+    )
+    address_converter_choice.add_section_group(address_converter_section_group)
+
+    address_mapper_section = Section(
+        'address-mapper-path',
+        SectionType.Optional,
+        Command(
+            name = 'address-mapper-path',
+            description = 'Path to the address mapper file',
+            aliases = ('-amp', '--address-mapper-path'),
+            arguments = (Argument('path', ArgumentType.Mandatory),)
+        ),
+    )
+    address_converter_section_group.add_section(address_mapper_section)
+
+    address_converter_section = Section(
+        'address-converter',
+        SectionType.Mandatory,
+        Command(
+            name = 'address-converter',
+            description = 'Convert an address from one region to another',
+            aliases = ('-ac', '--address-converter'),
+            arguments = (
+                Argument('input-address', ArgumentType.Mandatory),
+                Argument('input-region', ArgumentType.Mandatory),
+                Argument('output-region', ArgumentType.Mandatory),
+            )
+        ),
+    )
+    address_converter_section_group.add_section(address_converter_section)
+
+
+    # Execute
     cli_.exec(*sys.argv[1:])
 #----------------------------------------------------------------------

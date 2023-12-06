@@ -2,12 +2,12 @@
 
     # Libraries
 import os
-from ..LogType import LogType
-from .format_msg import format_msg
-from .cmd import press_any_key, clear
-from ..GlobalValues import GlobalValues
-from .logs import log_simple, log_complete
-from ..CompilerWorker import CompilerWorker
+from ...LogType import LogType
+from ...GlobalValues import GlobalValues
+from ...CompilerWorker import CompilerWorker
+from ...main_functions.format_msg import format_msg
+from ...main_functions.cmd import press_any_key, clear
+from ...main_functions.logs import log_simple, log_complete
 #----------------------------------------------------------------------
 
     # Function

@@ -2,12 +2,12 @@
 
     # Libraries
 import os
-from ..LogType import LogType
-from .format_msg import format_msg
-from .load_config import load_config
-from .cmd import press_any_key, clear
-from .compile import compile
-from ..view import ChoiceWindow
+from ...LogType import LogType
+from ...main_functions.format_msg import format_msg
+from ...main_functions.load_config import load_config
+from ...main_functions.cmd import press_any_key, clear
+from ..compile import compile
+from ...view import ChoiceWindow
 #----------------------------------------------------------------------
 
     # Function

@@ -21,12 +21,13 @@ from data.lib.version import VERSION
 from data.lib.path import *
 from data.lib.main_functions import *
 from data.lib.cliviews import *
+from data.lib.cli_commands import *
 #----------------------------------------------------------------------
 
     # Main
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        mainview(__file__ if sys.argv[0].endswith('.py') else sys.executable, parse_cli)
+        mainview(__file__ if sys.argv[0].endswith('.py') else sys.executable, compile_cli)
 
     else:
         clear()

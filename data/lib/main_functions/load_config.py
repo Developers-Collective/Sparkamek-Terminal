@@ -2,7 +2,7 @@
 
     # Libraries
 import os, sys, json
-from ..main_functions import format_msg
+from . import format_msg
 from ..LogType import LogType
 from .cmd import press_any_key
 #----------------------------------------------------------------------

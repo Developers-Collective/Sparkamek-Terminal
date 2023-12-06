@@ -39,7 +39,7 @@ def mainview(executable: str, callback: Callable):
         SectionType.Mandatory,
         Command(
             name = 'help',
-            description = 'Show this help message and exit',
+            description = 'Show this help message and exit.',
             aliases = ('-h', '--help'),
             arguments = (Argument('command', ArgumentType.Optional),)
         ),
@@ -64,7 +64,7 @@ def mainview(executable: str, callback: Callable):
         SectionType.Mandatory,
         Command(
             name = 'version',
-            description = 'Show version and exit',
+            description = 'Show the version and exit.',
             aliases = ('-v', '--version')
         ),
     )
@@ -88,7 +88,7 @@ def mainview(executable: str, callback: Callable):
         SectionType.Optional,
         Command(
             name = 'add-project',
-            description = 'Add a project to the config file if it doesn\'t exist',
+            description = 'Add a project to the config file if it doesn\'t exist.',
             aliases = ('-a', '--add-project'),
             # arguments = (Argument('name', ArgumentType.Mandatory), Argument('path', ArgumentType.Mandatory))
         )
@@ -100,7 +100,7 @@ def mainview(executable: str, callback: Callable):
         SectionType.Mandatory,
         Command(
             name = 'config-file',
-            description = 'Path to the config file',
+            description = 'Path to the JSON config file.',
             aliases = ('-cf', '--config-file'),
             arguments = (Argument('path', ArgumentType.Mandatory),)
         )
@@ -125,7 +125,7 @@ def mainview(executable: str, callback: Callable):
         SectionType.Optional,
         Command(
             name = 'address-mapper-path',
-            description = 'Path to the address mapper file',
+            description = 'Path to the address mapper file. If not specified, the default address mapper will be used.',
             aliases = ('-amp', '--address-mapper-path'),
             arguments = (Argument('path', ArgumentType.Mandatory),)
         ),
@@ -137,7 +137,7 @@ def mainview(executable: str, callback: Callable):
         SectionType.Mandatory,
         Command(
             name = 'address-converter',
-            description = 'Convert an address from one region to another',
+            description = 'Convert an address from one region to another. Addresses must be in hexadecimal format.',
             aliases = ('-ac', '--address-converter'),
             arguments = (
                 Argument('input-address', ArgumentType.Mandatory),

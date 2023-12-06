@@ -92,6 +92,38 @@ class Command:
         print(' ' * (max_length - len_string), end = '')
 
 
+    def _display_split_desc(self, description: str, max_length: int) -> list[str]:
+        desc_lines: list[str] = []
+        line_words: list[str] = []
+        word: str = ''
+        desc = description
+
+        while desc:
+            c = desc[0]
+            desc = desc[1:]
+
+            if c == ' ':
+                if not word: continue
+
+                line = ' '.join(line_words)
+
+                if len(line) + len(word) + 1 > max_length:
+                    desc_lines.append(line)
+                    line_words = []
+
+                line_words.append(word)
+                word = ''
+
+            else:
+                word += c
+
+        if word: line_words.append(word)
+
+        if line_words: desc_lines.append(' '.join(line_words))
+
+        return desc_lines
+
+
     def display(self, max_length: CommandMaxLengthStruct) -> None:
         aliases = ', '.join(self._aliases)
         arguments = ' '.join([argument.type.value.replace('%s', argument.name) for argument in self._arguments])
@@ -109,44 +141,16 @@ class Command:
             max_length.max_arguments
         )
 
-        desc_lines: list[str] = []
-        line_words: list[str] = []
-        word: str = ''
+        desc_lines = self._display_split_desc(desc, max_length.max_description)
 
-        while desc:
-            c = desc[0]
-            desc = desc[1:]
+        first_line = desc_lines.pop(0)
+        spaces = 0
+        if max_length.max_description == 0: print() # If the description can't be displayed, we go to the next line
+        else: spaces = max_length.total_length - (CLIConstants.SpaceSeparator * max_length.attributes_count) - CLIConstants.SpaceOffset
 
-            if c == ' ':
-                if not word: continue
-
-                line = ' '.join(line_words)
-
-                if len(line) + len(word) + 1 > max_length.max_description:
-                    desc_lines.append(line)
-                    line_words = []
-
-                line_words.append(word)
-                word = ''
-
-            else:
-                word += c
-
-        if word: line_words.append(word)
-
-        if line_words: desc_lines.append(' '.join(line_words))
-
-        l1 = desc_lines.pop(0)
-        if max_length.max_description == 0: print()
-        print(f'{CLIConstants.FontColor.terminal_color}{l1}{CLIConstants.Reset}')
+        print(f'{CLIConstants.FontColor.terminal_color}{first_line}{CLIConstants.Reset}')
 
         for line in desc_lines:
-            if max_length.max_description != 0:
-                print(
-                    ' ' * (
-                        max_length.total_length - (CLIConstants.SpaceSeparator * max_length.attributes_count) - CLIConstants.SpaceOffset
-                    ),
-                    end = ''
-                )
+            if max_length.max_description != 0: print(' ' * spaces, end = '')
             print(f'{CLIConstants.FontColor.terminal_color}{line}{CLIConstants.Reset}')
 #----------------------------------------------------------------------

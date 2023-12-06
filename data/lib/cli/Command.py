@@ -99,7 +99,7 @@ class Command:
         desc = self._description.replace('\n', ' ').replace('\t', ' ').strip()
 
         self._print_align(
-            f'{CLIConstants.FontColor.terminal_color}{aliases}{CLIConstants.Reset}',
+            f'{CLIConstants.CommandColor.terminal_color}{aliases}{CLIConstants.Reset}',
             len(aliases),
             max_length.max_aliases
         )

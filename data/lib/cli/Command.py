@@ -95,12 +95,22 @@ class Command:
             c = desc[0]
             desc = desc[1:]
 
-            if c == ' ':
+            if c == '\n':
+                line_words.append(word)
+
+                line = ' '.join(line_words)
+
+                desc_lines.append(line)
+                line_words = []
+
+                word = ''
+
+            elif c == ' ':
                 if not word: continue
 
                 line = ' '.join(line_words)
 
-                if len(line) + len(word) + 1 > max_length:
+                if (len(line) + len(word) + 1) > max_length:
                     desc_lines.append(line)
                     line_words = []
 
@@ -121,7 +131,7 @@ class Command:
         aliases = ', '.join(self._aliases)
         arguments = ' '.join([argument.type.value.replace('%s', argument.name) for argument in self._arguments])
         len_arguments = len(' '.join([f'[{argument.name}]' for argument in self._arguments]))
-        desc = self._description.replace('\n', ' ').replace('\t', ' ').strip()
+        desc = self._description.replace('\n', ' \n').replace('\t', ' ').strip()
 
         self._print_align(
             f'{CLIConstants.CommandColor.terminal_color}{aliases}{CLIConstants.Reset}',

@@ -138,7 +138,7 @@ def mainview(executable: str):
         SectionType.Mandatory,
         Command(
             name = 'address-converter',
-            description = 'Convert an address from one region to another. Addresses must be in hexadecimal format.',
+            description = 'Convert an address from one region to another. Addresses must be in hexadecimal format.\nPS: This command is in Beta and may not work in some cases.',
             aliases = ('-ac', '--address-converter'),
             arguments = (
                 Argument('input-address', ArgumentType.Mandatory),

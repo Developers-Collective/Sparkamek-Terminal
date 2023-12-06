@@ -5,6 +5,7 @@ from .Choice import Choice
 from .CLIException import CLIException
 from .CommandResult import CommandResult
 from .CLIConstants import CLIConstants
+from .CommandMaxLengthStruct import CommandMaxLengthStruct
 #----------------------------------------------------------------------
 
     # Class
@@ -103,11 +104,14 @@ class CLI:
         if not help.exists('command'):
             print(f'{CLIConstants.TitleColor.terminal_color}Usage{CLIConstants.Reset}')
 
+            max_length = CommandMaxLengthStruct.get_max(*(choice.get_display_length() for choice in self._choices.values()))
+            max_length.apply_max_width()
+
             for choice in self._choices.values():
                 choice.display_usage(self._executable)
 
             for choice in self._choices.values():
-                choice.display()
+                choice.display(max_length)
 
             return
 

@@ -5,6 +5,7 @@ from .SectionType import SectionType
 from .Command import Command
 from .CLIConstants import CLIConstants
 from .CLIException import CLIException
+from .CommandMaxLengthStruct import CommandMaxLengthStruct
 #----------------------------------------------------------------------
 
     # Class
@@ -65,11 +66,15 @@ class Section:
         return results, new_arg_list, step
 
 
-    def display(self) -> None:
+    def get_display_length(self) -> CommandMaxLengthStruct:
+        return CommandMaxLengthStruct.get_max(*(command.get_display_length() for command in self._commands.values()))
+
+
+    def display(self, max_length: CommandMaxLengthStruct) -> None:
         self.display_name()
 
         for command in sorted(self._commands.values(), key = lambda c: c.name):
-            command.display()
+            command.display(max_length)
 
 
     def display_name(self) -> None:

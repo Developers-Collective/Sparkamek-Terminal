@@ -9,9 +9,11 @@ from data.lib.LogType import LogType
 class CLIConstants:
     def __new__(cls) -> None: return None
 
-    SpaceAlign = 2
-    SpaceArgsAlign = 32 - SpaceAlign
-    SpaceCommentAlign = 56 - SpaceArgsAlign - SpaceAlign
+    # SpaceAlign = 2
+    # SpaceArgsAlign = 32 - SpaceAlign
+    # SpaceCommentAlign = 56 - SpaceArgsAlign - SpaceAlign
+    SpaceOffset = 2
+    SpaceSeparator = 4
 
     MandatoryColor = Color.from_hex('#33D472')
     OptionalColor = Color.from_hex('#33C7DE')

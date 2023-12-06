@@ -11,5 +11,5 @@ def log_simple(msg: str, log_type: LogType, invisible: bool = False) -> None:
     if GlobalValues.simple_logs: print(format_msg(msg, log_type, invisible).replace('&nbsp;', ' '))
 
 def log_complete(msg: str, log_type: LogType, invisible: bool = False) -> None:
-    if not GlobalValues.simple_logs: print(format_msg(msg, log_type, invisible).replace('&nbsp;', ' '))
+    print(format_msg(msg, log_type, invisible).replace('&nbsp;', ' '))
 #----------------------------------------------------------------------

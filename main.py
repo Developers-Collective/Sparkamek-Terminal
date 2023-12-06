@@ -27,7 +27,7 @@ from data.lib.cli_commands import *
     # Main
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        mainview(__file__ if sys.argv[0].endswith('.py') else sys.executable, compile_cli)
+        mainview(__file__ if sys.argv[0].endswith('.py') else sys.executable)
 
     else:
         clear()

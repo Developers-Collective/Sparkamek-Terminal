@@ -1,11 +1,15 @@
 #----------------------------------------------------------------------
 
+    # Libraries
+from ..main_functions.fix_name import fix_name
+#----------------------------------------------------------------------
+
     # Class
 class CommandResult:
     def __init__(self, name: str, **kwargs: object) -> None:
         self._name = name
         for key, value in kwargs.items():
-            setattr(self, key, value)
+            setattr(self, fix_name(key), value)
 
 
     def exists(self, key: str) -> bool:

@@ -6,10 +6,11 @@ from data.lib.cli import *
 from data.lib.version import VERSION
 from typing import Callable
 from data.lib.cli.CLIConstants import CLIConstants
+from data.lib.cli_commands import *
 #----------------------------------------------------------------------
 
     # Functions
-def mainview(executable: str, callback: Callable):
+def mainview(executable: str):
     # Setup
     cli_ = CLI(
         executable,
@@ -74,7 +75,7 @@ def mainview(executable: str, callback: Callable):
     # Compile
     compile_choice = Choice(
         name = 'options',
-        callback = lambda **kwargs: callback(**kwargs)
+        callback = lambda **kwargs: compile_cli(**kwargs)
     )
     cli_.add_choice(compile_choice)
 
@@ -111,7 +112,7 @@ def mainview(executable: str, callback: Callable):
     # Address Converter
     address_converter_choice = Choice(
         name = 'address-converter',
-        callback = lambda **kwargs: print(kwargs)
+        callback = lambda **kwargs: address_converter_cli(**kwargs)
     )
     cli_.add_choice(address_converter_choice)
 

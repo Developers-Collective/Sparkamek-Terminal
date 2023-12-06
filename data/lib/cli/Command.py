@@ -7,6 +7,7 @@ from .CLIConstants import CLIConstants
 from .CLIException import CLIException
 from .CommandResult import CommandResult
 from .CommandMaxLengthStruct import CommandMaxLengthStruct
+from ..main_functions.fix_name import fix_name
 #----------------------------------------------------------------------
 
     # Class
@@ -40,14 +41,6 @@ class Command:
         return self._arguments
 
 
-    def _fix_name(self, name: str) -> str:
-        authorized = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'
-        new_name = ''.join([char if char in authorized else '_' for char in name])
-        if new_name[0] in '0123456789': new_name = '_' + new_name
-
-        return new_name
-
-
     def exec(self, arg_list: tuple[str], input_step: int) -> tuple[dict[str, str], tuple[str], int]:
         results = {}
         new_arg_list = list(arg_list)
@@ -57,7 +50,7 @@ class Command:
             raise CLIException(f'Unknown command: {new_arg_list[0]}', step)
         
         new_arg_list.pop(0)
-        fixed_name = self._fix_name(self._name)
+        fixed_name = fix_name(self._name)
         results[fixed_name] = CommandResult(self._name)
         command_args = {}
 

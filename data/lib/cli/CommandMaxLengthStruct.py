@@ -45,5 +45,4 @@ class CommandMaxLengthStruct:
         self.max_aliases += CLIConstants.SpaceSeparator
         self.max_arguments += CLIConstants.SpaceSeparator
         self.max_description = max(max_width - length, 0)
-        print(length, max_width, self.max_description)
 #----------------------------------------------------------------------

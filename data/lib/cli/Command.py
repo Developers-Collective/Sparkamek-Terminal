@@ -6,6 +6,7 @@ from .ArgumentType import ArgumentType
 from .CLIConstants import CLIConstants
 from .CLIException import CLIException
 from .CommandResult import CommandResult
+from .CommandMaxLengthStruct import CommandMaxLengthStruct
 #----------------------------------------------------------------------
 
     # Class
@@ -75,23 +76,77 @@ class Command:
         return results, tuple(new_arg_list), step
 
 
-    def display(self) -> None:
+    def get_display_length(self) -> CommandMaxLengthStruct:
         aliases = ', '.join(self._aliases)
-        len_aliases = len(aliases)
+        arguments = ' '.join([f'[{argument.name}]' for argument in self._arguments])
 
+        return CommandMaxLengthStruct(
+            max_aliases = len(aliases),
+            max_arguments = len(arguments),
+            max_description = 0
+        )
+
+
+    def _print_align(self, string: str, len_string: int, max_length: int) -> None:
+        print(string, end = '')
+        print(' ' * (max_length - len_string), end = '')
+
+
+    def display(self, max_length: CommandMaxLengthStruct) -> None:
+        aliases = ', '.join(self._aliases)
         arguments = ' '.join([argument.type.value.replace('%s', argument.name) for argument in self._arguments])
         len_arguments = len(' '.join([f'[{argument.name}]' for argument in self._arguments]))
+        desc = self._description.replace('\n', ' ').replace('\t', ' ').strip()
 
-        desc = self._description.split('\n')
+        self._print_align(
+            f'{CLIConstants.FontColor.terminal_color}{aliases}{CLIConstants.Reset}',
+            len(aliases),
+            max_length.max_aliases
+        )
+        self._print_align(
+            f'{CLIConstants.FontColor.terminal_color}{arguments}{CLIConstants.Reset}',
+            len_arguments,
+            max_length.max_arguments
+        )
 
-        print(' ' * CLIConstants.SpaceAlign, end = '')
-        print(f'{CLIConstants.CommandColor.terminal_color}{aliases}{CLIConstants.Reset}', end = '')
-        print(' ' * (CLIConstants.SpaceArgsAlign - len_aliases), end = '')
-        print(f'{arguments}', end = '')
-        print(' ' * (CLIConstants.SpaceCommentAlign - len_arguments), end = '')
-        print(f'{CLIConstants.FontColor.terminal_color}{desc[0]}{CLIConstants.Reset}')
+        desc_lines: list[str] = []
+        line_words: list[str] = []
+        word: str = ''
 
-        for line in desc[1:]:
-            print(' ' * (CLIConstants.SpaceCommentAlign + CLIConstants.SpaceArgsAlign + CLIConstants.SpaceAlign), end = '')
+        while desc:
+            c = desc[0]
+            desc = desc[1:]
+
+            if c == ' ':
+                if not word: continue
+
+                line = ' '.join(line_words)
+
+                if len(line) + len(word) + 1 > max_length.max_description:
+                    desc_lines.append(line)
+                    line_words = []
+
+                line_words.append(word)
+                word = ''
+
+            else:
+                word += c
+
+        if word: line_words.append(word)
+
+        if line_words: desc_lines.append(' '.join(line_words))
+
+        l1 = desc_lines.pop(0)
+        if max_length.max_description == 0: print()
+        print(f'{CLIConstants.FontColor.terminal_color}{l1}{CLIConstants.Reset}')
+
+        for line in desc_lines:
+            if max_length.max_description != 0:
+                print(
+                    ' ' * (
+                        max_length.total_length - (CLIConstants.SpaceSeparator * max_length.attributes_count) - CLIConstants.SpaceOffset
+                    ),
+                    end = ''
+                )
             print(f'{CLIConstants.FontColor.terminal_color}{line}{CLIConstants.Reset}')
 #----------------------------------------------------------------------

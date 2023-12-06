@@ -3,16 +3,16 @@
     # Libraries
 import os, json
 from ..LogType import LogType
-from .format_msg import format_msg
-from .cmd import press_any_key
-from .load_config import load_config
-from .compile import compile
+from ..main_functions.format_msg import format_msg
+from ..main_functions.cmd import press_any_key
+from ..main_functions.load_config import load_config
+from ..cli_commands.compile import compile
 from ..GlobalValues import GlobalValues
 from ..cli import CommandResult
 #----------------------------------------------------------------------
 
     # Function
-def parse_cli(config_file: CommandResult, add_project: CommandResult = None) -> None:
+def compile_cli(config_file: CommandResult, add_project: CommandResult = None) -> None:
     config, devkitppc_path = load_config()
 
     path = os.getcwd()

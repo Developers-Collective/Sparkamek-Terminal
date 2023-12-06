@@ -7,6 +7,7 @@ from data.lib.cli.CLIConstants import CLIConstants
 from ..LogType import LogType
 from ..ProjectException import ProjectException
 from ..Signal import Signal
+from .KamekConstants import KamekConstants
 #----------------------------------------------------------------------
 
     # Class
@@ -118,9 +119,7 @@ class AddressMapperController:
 
 
     def run(self) -> None:
-        path = f'{self._cwd}/tools/versions-nsmbw.txt'
-        if not os.path.exists(path):
-            path = './data/game/nsmbw/versions/versions-nsmbw.txt'
+        path = KamekConstants.get_versions_nsmbw(self._cwd)
         
         if not os.path.exists(path):
             raise ProjectException(f'Unable to find "{LogType.Error.value}versions-nsmbw.txt{CLIConstants.Reset}" at "{self._cwd}/tools"', LogType.Error)
@@ -312,4 +311,23 @@ class AddressMapperController:
                 if m not in already_done:
                     already_done.add(m)
                     self._do_module(m.replace('processed/', ''), m, mappers)
+
+
+    @staticmethod
+    def revert_mappers(mappers_base: dict[str, AddressMapper]) -> dict[str, AddressMapper]:
+        new_mappers: dict[str, AddressMapper] = {}
+
+        for version, address_mapper in mappers_base.items():
+            base = None
+            if address_mapper.base:
+                base_key = [k for k, v in mappers_base.items() if v == mappers_base[version].base]
+                if base_key:
+                    base = new_mappers[base_key[0]]
+
+            new_mappers[version] = AddressMapper(base)
+
+            for mapping in address_mapper.items():
+                new_mappers[version].add_mapping(mapping.start + mapping.delta, mapping.end + mapping.delta, -mapping.delta)
+
+        return new_mappers
 #----------------------------------------------------------------------

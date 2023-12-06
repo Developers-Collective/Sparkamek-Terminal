@@ -3,6 +3,7 @@
     # Libraries
 from .CLIConstants import CLIConstants
 from .Section import Section
+from .CommandMaxLengthStruct import CommandMaxLengthStruct
 #----------------------------------------------------------------------
 
     # Class
@@ -45,12 +46,16 @@ class SectionGroup:
         return results, new_arg_list, step
 
 
-    def display(self) -> None:
+    def get_display_length(self) -> CommandMaxLengthStruct:
+        return CommandMaxLengthStruct.get_max(*(section.get_display_length() for section in self._sections))
+
+
+    def display(self, max_length: CommandMaxLengthStruct) -> None:
         for section in self._sections:
-            section.display()
+            section.display(max_length)
 
     def display_usage(self, executable: str) -> None:
-        print(' ' * CLIConstants.SpaceAlign, end = '')
+        print(' ' * CLIConstants.SpaceOffset, end = '')
         print(f'{CLIConstants.FontColor.terminal_color}"{executable}"{CLIConstants.Reset}', end = ' ')
 
         for section in self._sections:

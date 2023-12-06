@@ -6,6 +6,7 @@ from typing import Callable
 
 from .SectionGroup import SectionGroup
 from .CLIException import CLIException
+from .CommandMaxLengthStruct import CommandMaxLengthStruct
 #----------------------------------------------------------------------
 
     # Class
@@ -36,9 +37,12 @@ class Choice:
         self._section_groups[section_group.name] = section_group
 
 
-    def display(self) -> None:
+    def get_display_length(self) -> CommandMaxLengthStruct:
+        return CommandMaxLengthStruct.get_max(*(section_group.get_display_length() for section_group in self._section_groups.values()))
+
+    def display(self, max_length: CommandMaxLengthStruct) -> None:
         for section_group in self._section_groups.values():
-            section_group.display()
+            section_group.display(max_length)
 
     def display_usage(self, executable: str) -> None:
         for section_group in self._section_groups.values():

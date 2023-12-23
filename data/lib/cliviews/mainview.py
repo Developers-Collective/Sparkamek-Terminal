@@ -3,7 +3,7 @@
     # Libraries
 import sys
 from data.lib.cli import *
-from data.lib.version import VERSION
+from data.lib.version import VERSION_BUILD
 from typing import Callable
 from data.lib.cli.CLIConstants import CLIConstants
 from data.lib.cli_commands import *
@@ -16,9 +16,9 @@ def mainview(executable: str):
         executable,
         f'{CLIConstants.VersionTitleColor.terminal_color}Sparkamek Terminal'
         f'{CLIConstants.VersionSeparatorColor.terminal_color} | '
-        f'{CLIConstants.VersionDigitColor.terminal_color}{VERSION[0]}'
+        f'{CLIConstants.VersionDigitColor.terminal_color}{VERSION_BUILD[0]}'
         f'{CLIConstants.VersionSeparatorColor.terminal_color} • '
-        f'{CLIConstants.VersionDigitColor.terminal_color}{VERSION[1]}'
+        f'{CLIConstants.VersionDigitColor.terminal_color}{VERSION_BUILD[1]}'
         f'{CLIConstants.Reset}'
     )
 

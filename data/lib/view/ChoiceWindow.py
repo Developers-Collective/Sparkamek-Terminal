@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------
 
     # Libraries
-from data.lib.version import VERSION
+from data.lib.version import VERSION_BUILD
 from textual._path import CSSPathType
 from textual.app import App, CSSPathType, ComposeResult
 from textual.driver import Driver
@@ -40,7 +40,7 @@ class ChoiceWindow(App):
         self._selected_id = selected_id
         self._list = None
 
-        self.title = f'Sparkamek Terminal | {VERSION[0]} • {VERSION[1]}'
+        self.title = f'Sparkamek Terminal | {VERSION_BUILD[0]} • {VERSION_BUILD[1]}'
 
 
     def compose(self) -> ComposeResult:

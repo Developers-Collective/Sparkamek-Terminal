@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------
 
     # Libraries
-from data.lib.version import VERSION
+from data.lib.version import VERSION_BUILD
 from data.lib.PlatformType import PlatformType
 from .AddToPathWindowData.AddToPathResponse import AddToPathResponse
 from textual._path import CSSPathType
@@ -33,7 +33,7 @@ class AddToPathWindow(App):
         self._platform = platform
         self._cwd = cwd
 
-        self.title = f'Sparkamek Terminal | {VERSION[0]} • {VERSION[1]} > Add to Path'
+        self.title = f'Sparkamek Terminal | {VERSION_BUILD[0]} • {VERSION_BUILD[1]} > Add to Path'
         self._buttons = []
 
 

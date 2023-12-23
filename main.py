@@ -17,7 +17,7 @@ from data.lib.view import *
 from data.lib.cli import *
 from data.lib.utils.Color import Color
 from data.lib.PlatformType import PlatformType
-from data.lib.version import VERSION
+from data.lib.version import VERSION_BUILD
 from data.lib.path import *
 from data.lib.main_functions import *
 from data.lib.cliviews import *

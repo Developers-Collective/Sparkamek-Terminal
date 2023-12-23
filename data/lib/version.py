@@ -1,5 +1,7 @@
 #----------------------------------------------------------------------
 
     # Setup
-VERSION = ('Version: Experimental', 'Build: 07e7e9f6')
+BUILD = '07e7ffbd'
+VERSION = 'Experimental'
+VERSION_BUILD = (f'Version: {VERSION}', f'Build: {BUILD}')
 #----------------------------------------------------------------------

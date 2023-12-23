@@ -8,5 +8,5 @@ from .ProjectException import ProjectException
 from .Signal import Signal
 from .compiler import *
 from .PlatformType import PlatformType
-from .version import VERSION
+from .version import VERSION_BUILD
 #----------------------------------------------------------------------

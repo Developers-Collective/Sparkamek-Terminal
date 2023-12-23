@@ -154,7 +154,7 @@ class CompilerWorker:
         try: missing_symbols, func_symbols = self._kamek_controller.run()
 
         except CannotFindFunctionException as e:
-            self.log_error(f'Cannot find function: "{LogType.Error.value}{e.not_found_func}{CLIConstants.Reset}"', False)
+            self.log_error(f'Cannot find function: "{LogType.Error.value.terminal_color}{e.not_found_func}{CLIConstants.Reset}"', False)
 
             def make_diff(a: str, b: str) -> str:
                 new_s = ''

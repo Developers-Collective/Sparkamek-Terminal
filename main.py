@@ -8,7 +8,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__ if sys.argv[0].endswith('.py')
 #----------------------------------------------------------------------
 
     # Libraries
-import json
+import json, shutil
 from enum import StrEnum, Enum
 from textual import *
 from data.lib.CompilerWorker import CompilerWorker

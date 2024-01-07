@@ -170,7 +170,7 @@ class CompilerWorker:
                 return new_s
 
             def make_span(s: str, log_type: LogType) -> str:
-                return f'{log_type.value}{s}{CLIConstants.Reset}'
+                return f'{log_type.value.terminal_color}{s}{CLIConstants.Reset}'
 
             if len(e.func_symbols) == 1:
                 self.log_error(f'&nbsp;&nbsp;Did you mean "{make_diff(e.not_found_func, e.func_symbols[0].name)}"?', True)

@@ -25,6 +25,7 @@ class CLIConstants:
     VersionTitleColor = Color.from_hex('#00B4FF')
     VersionDigitColor = Color.from_hex('#16C60C')
     CommandColor = Color.from_hex('#FFD800')
+    WarningColor = Color.from_hex('#FFD800')
     ErrorColor = Color.from_hex('#FF3232')
     VersionSeparatorColor = Color.from_hex('#767676')
     FontColor = Color.from_hex('#F2F2F2')

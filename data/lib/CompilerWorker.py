@@ -242,7 +242,7 @@ class CompilerWorker:
             self.log_simple.emit('Your code is missing the following symbols:', LogType.Warning, False)
 
             for symbol in missing_symbols:
-                self.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;• {LogType.Warning.value}{symbol.name}{CLIConstants.Reset}', LogType.Warning, True)
+                self.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;• {CLIConstants.WarningColor.terminal_color}{symbol.name}{CLIConstants.Reset}', LogType.Warning, True)
 
 
         if path := self._data.get('outputFolder', None):

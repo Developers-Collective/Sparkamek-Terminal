@@ -404,18 +404,18 @@ class KamekBuilder:
             self._controller.log_simple.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', LogType.Error, True)
         self._controller.log_simple.emit('&nbsp;', LogType.Error, True)
 
-        # for file in errors: # Removed all the errors because they are not needed
-        #     self._controller.log_complete.emit(f'{CLIConstants.WhiteColor.terminal_color}{file}{CLIConstants.Reset}:', LogType.Error, False)
+        for file in errors:
+            self._controller.log_complete.emit(f'{CLIConstants.FontColor.terminal_color}{file}{CLIConstants.Reset}:', LogType.Error, False)
 
-        #     for fasthack_line, code, pos1, pos2, details in errors[file]:
-        #         code_begin = code[:pos1]
-        #         code_middle = code[pos1:pos2 + 1]
-        #         code_end = code[pos2 + 1:]
-        #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{CLIConstants.Reset}', LogType.Error, True)
-        #         self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.RedColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', LogType.Error, True)
-        #         for detail in details:
-        #             self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', LogType.Error, True)
-        #         self._controller.log_complete.emit('&nbsp;', LogType.Error, True)
+            for fasthack_line, code, pos1, pos2, details in errors[file]:
+                code_begin = code[:pos1]
+                code_middle = code[pos1:pos2 + 1]
+                code_end = code[pos2 + 1:]
+                self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;Line {fasthack_line}{CLIConstants.Reset}', LogType.Error, True)
+                self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{code_begin}{CLIConstants.ErrorColor.terminal_color}{code_middle}{CLIConstants.Reset}{code_end}', LogType.Error, True)
+                for detail in details:
+                    self._controller.log_complete.emit(f'&nbsp;&nbsp;&nbsp;&nbsp;{detail}{CLIConstants.Reset}', LogType.Error, True)
+                self._controller.log_complete.emit('&nbsp;', LogType.Error, True)
 
 
     def _compile_modules(self) -> None:

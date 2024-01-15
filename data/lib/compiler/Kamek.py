@@ -560,20 +560,19 @@ class KamekBuilder:
 
                 try:
                     os.chdir(self._controller.cwd)
-                    p = subprocess.Popen(new_command, stdout = subprocess.PIPE, **startupinfo)
-                    output = p.communicate()[0].decode('utf-8')
-                    error_val = p.poll()
+                    output: subprocess.CompletedProcess = subprocess.run(new_command, capture_output = True, text = True, **startupinfo)
+                    error_val = output.returncode
                     os.chdir(cwd)
 
-                    self._filter_compilation_output(output)
+                    self._filter_compilation_output(output.stdout)
 
                 except Exception as e:
                     os.chdir(cwd)
                     raise ProjectException(f'An error occured while calling the compiler.\nPlease make sure CodeWarrior is installed correctly into the tools folder.\nIf it\'s installed correctly, here is the error:\n{e}', LogType.Error)
                 
                 if error_val != 0:
-                    if 'Driver Error' in output:
-                        raise ProjectException(output, LogType.Error)
+                    if 'Driver Error' in output.stdout:
+                        raise ProjectException(output.stdout, LogType.Error)
 
                     else:
                         raise ProjectException('Compiler returned %d - An error occurred while compiling %s' % (error_val, sourcefile), LogType.Error)
@@ -592,12 +591,11 @@ class KamekBuilder:
 
             cwd = os.getcwd()
             os.chdir(self._controller.cwd)
-            p = subprocess.Popen(new_command, stdout = subprocess.PIPE, **startupinfo)
-            output = p.communicate()[0].decode('utf-8')
-            error_val = p.poll()
+            output: subprocess.CompletedProcess = subprocess.run(new_command, capture_output = True, text = True, **startupinfo)
+            error_val = output.returncode
             os.chdir(cwd)
 
-            self._filter_compilation_output(output)
+            self._filter_compilation_output(output.stdout)
 
             if error_val != 0:
                 raise ProjectException('Compiler returned %d - An error occurred while compiling the fast hack' % error_val, LogType.Error)
@@ -645,7 +643,20 @@ class KamekBuilder:
 
         cwd = os.getcwd()
         os.chdir(self._controller.cwd)
-        error_val = subprocess.call(ld_command, **startupinfo)
+        output: subprocess.CompletedProcess = subprocess.run(ld_command, capture_output = True, text = True, **startupinfo)
+        error_val = output.returncode
+        os.chdir(cwd)
+
+        if output.stderr:
+            for index, line in enumerate(output.stderr.replace('; ', '\n').split('\n')):
+                new_line = ''
+
+                for i, arg in enumerate(line.replace('`', '\'').split('\'')):
+                    if i % 2 == 0: new_line += arg
+                    else: new_line += f'\'{CLIConstants.ErrorColor.terminal_color}{arg}{CLIConstants.Reset}\''
+
+                self._controller.log_error(new_line, index != 0)
+
         os.chdir(cwd)
 
         if error_val != 0:

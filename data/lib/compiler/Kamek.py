@@ -148,7 +148,7 @@ class KamekModule:
         with open(f'{controller.cwd}/{self.module_path}', 'r', encoding = 'utf8') as f:
             self.raw_data = f.read()
 
-        self.data = yaml.safe_load(self.raw_data)
+        self.data: dict = yaml.safe_load(self.raw_data)
         if not isinstance(self.data, dict):
             raise ValueError('the module file %s is an invalid format (it should be a YAML mapping)' % self.module_name)
 
@@ -157,13 +157,16 @@ class KamekModule:
             if field not in self.data:
                 raise ValueError('Missing field in the module file %s: %s' % (self.module_name, field))
 
+        if not self.data.get('defines'): self.data['defines'] = []
+        if not isinstance(self.data.get('defines'), list): self.data['defines'] = [self.data['defines']]
+
 
 
 class KamekBuilder:
-    def __init__(self, controller: 'KamekController', project, configs) -> None:
-        self._controller = controller
-        self.project = project
-        self.configs = configs
+    def __init__(self, controller: 'KamekController', project: 'KamekProject', configs: dict) -> None:
+        self._controller: KamekController = controller
+        self.project: KamekProject = project
+        self.configs: dict = configs
 
 
     def build(self) -> None:
@@ -254,8 +257,8 @@ class KamekBuilder:
             self._controller.log_info('Created that directory')
 
 
-    def _set_config(self, config) -> None:
-        self._config = config
+    def _set_config(self, config: dict) -> None:
+        self._config: dict = config
         self._controller.log_info_all('&nbsp;', True)
         self._controller.log_info_all('Building for configuration: ' + config['friendly_name'])
 
@@ -498,7 +501,7 @@ class KamekBuilder:
                 for i in self._config['include_dirs']:
                     cc_command.append('-I%s' % i)
 
-            except Exception:
+            except Exception as e:
                 raise ProjectException(f'Invalid config file: "kamek_configs.yaml". Try using the same format as the NewerSMBW 1.3.0 one.', LogType.Error)
 
 
@@ -819,7 +822,7 @@ class KamekProject:
         with open(self.project_path, 'r', encoding = 'utf8') as f:
             self.raw_data = f.read()
 
-        self.data = yaml.safe_load(self.raw_data)
+        self.data: dict = yaml.safe_load(self.raw_data)
         if not isinstance(self.data, dict):
             raise ValueError('The project file is an invalid format (it should be a YAML mapping)')
 
@@ -827,6 +830,9 @@ class KamekProject:
         for field in self._required_fields:
             if field not in self.data:
                 raise ValueError('Missing field in the project file: %s' % field)
+
+        if not self.data.get('defines'): self.data['defines'] = []
+        if not isinstance(self.data.get('defines'), list): self.data['defines'] = [self.data['defines']]
 
         # load each module
         self.modules = []

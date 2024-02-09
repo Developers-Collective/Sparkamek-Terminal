@@ -25,6 +25,10 @@ Sparkamek is an app for Windows, Linux and MacOS. Kamek is a tool that allows yo
 Sparkamek Terminal is a lite version of Sparkamek that only contains the Kamek compiler. It is available for Windows, Linux and MacOS.
 
 
+> [!NOTE]\
+> If you're interested in a more complex version of Sparkamek Terminal including additional tools, check [Sparkamek](https://github.com/Synell/Sparkamek).
+
+
 ## Requirements
 
 ### Windows

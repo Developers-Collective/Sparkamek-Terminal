@@ -16,7 +16,7 @@ class AbstractFactory(metaclass = Singleton):
 
 
     @classmethod
-    def register(cls_, key: str, cls: type) -> None:
+    def register(cls_, key: str, cls: object) -> None:
         '''Register a class to the factory.
 
         Args:

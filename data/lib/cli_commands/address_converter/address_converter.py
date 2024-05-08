@@ -12,8 +12,19 @@ def address_converter(address_mapper_path: str, input_address: int, input_region
     error: int = 0
     schema_str: str = f'{CLIConstants.FontColor.terminal_color}0x{input_address:08X} ({input_region}){CLIConstants.Reset} => %c%s (Default){CLIConstants.Reset} => %c%s ({output_region}){CLIConstants.Reset}'
 
+    version_ids = {
+        'P2': 'pal2',
+        'E1': 'ntsc',
+        'E2': 'ntsc2',
+        'J1': 'jpn',
+        'J2': 'jpn2',
+        'K': 'kor',
+        'W': 'twn',
+        'C': 'chn',
+    }
+
     with open(address_mapper_path, 'r', encoding='utf-8') as infile:
-        base_address_mapper = AddressMapperController.read_version_info(infile)
+        base_address_mapper = AddressMapperController.read_version_info(infile, version_ids)
 
     other_address_mapper = AddressMapperController.revert_mappers(base_address_mapper)
 

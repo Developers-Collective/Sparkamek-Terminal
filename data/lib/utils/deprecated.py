@@ -9,6 +9,7 @@ import warnings
     # Setup
 string_types = (type(b''), type(u''))
 #----------------------------------------------------------------------
+
     # Class
 def deprecated(reason: str):
     '''This is a decorator which can be used to mark functions as deprecated. It will result in a warning being emitted when the function is used.
@@ -58,13 +59,12 @@ def deprecated(reason: str):
         return decorator
 
     elif inspect.isclass(reason) or inspect.isfunction(reason):
-
-        # The @deprecated is used without any 'reason'.
-        # ```py
-        # @deprecated
-        # def old_function(x, y):
-        #     pass
-        # ```
+        '''The @deprecated is used without any 'reason'.
+        ```py
+        @deprecated
+        def old_function(x, y):
+            pass
+        ```'''
 
         func2 = reason
 

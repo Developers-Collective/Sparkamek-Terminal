@@ -58,8 +58,12 @@ class Hooks:
 
             for field in self.required_data:
                 field = field.replace('%BUILD%', current_build_name)
-                if field not in data:
-                    raise ValueError('Hook %s : %s is missing the field %s' % (module.module_name, data['name'], field))
+
+
+        def _can_create_patches(self) -> bool:
+            exclude = self.data.get('exclude', [])
+            return not self.builder.current_build_name in exclude
+
 
         def create_patches(self) -> None:
             pass
@@ -75,6 +79,8 @@ class Hooks:
             Hooks.Hook.__init__(self, builder, module, data)
 
         def create_patches(self) -> None:
+            if not self._can_create_patches(): return
+
             addr = self.data['addr_%s' % self.builder.current_build_name]
 
             hex_data = self.data['data']
@@ -98,6 +104,8 @@ class Hooks:
             Hooks.Hook.__init__(self, builder, module, data)
 
         def create_patches(self) -> None:
+            if not self._can_create_patches(): return
+
             try:
                 target_func = self.data['target_func']
             except KeyError:
@@ -130,6 +138,8 @@ class Hooks:
             Hooks.Hook.__init__(self, builder, module, data)
 
         def create_patches(self) -> None:
+            if not self._can_create_patches(): return
+
             try:
                 target_func = self.data['target_func']
             except KeyError:
@@ -158,6 +168,8 @@ class Hooks:
             Hooks.Hook.__init__(self, builder, module, data)
 
         def create_patches(self) -> None:
+            if not self._can_create_patches(): return
+
             area = self.data['area_%s' % self.builder.current_build_name]
 
             if isinstance(area, list):

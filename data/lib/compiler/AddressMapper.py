@@ -343,6 +343,9 @@ class AddressMapperController:
                     if x_id in hook.get('exclude', []):
                         continue
 
+                    if hook.get('version_specific', False):
+                        continue
+
                     self._work_on_hook(hook, mapper)
 
         with open(f'{self._cwd}/{dest}', 'w') as f:

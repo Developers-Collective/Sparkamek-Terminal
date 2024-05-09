@@ -80,6 +80,10 @@ class Hooks:
 
         def create_patches(self) -> None:
             if not self._can_create_patches(): return
+            if (
+                self.data.get('version_specific', False) and
+                not self.data.get(f'addr_{self.builder.current_build_name}', None)
+            ): return
 
             addr = self.data['addr_%s' % self.builder.current_build_name]
 
@@ -105,6 +109,11 @@ class Hooks:
 
         def create_patches(self) -> None:
             if not self._can_create_patches(): return
+            if (
+                self.data.get('version_specific', False) and
+                not self.data.get(f'target_func_{self.builder.current_build_name}', None) and
+                not self.data.get(f'src_addr_{self.builder.current_build_name}', None)
+            ): return
 
             try:
                 target_func = self.data['target_func']
@@ -139,6 +148,11 @@ class Hooks:
 
         def create_patches(self) -> None:
             if not self._can_create_patches(): return
+            if (
+                self.data.get('version_specific', False) and
+                not self.data.get(f'target_func_{self.builder.current_build_name}', None) and
+                not self.data.get(f'src_addr_{self.builder.current_build_name}', None)
+            ): return
 
             try:
                 target_func = self.data['target_func']
@@ -169,6 +183,10 @@ class Hooks:
 
         def create_patches(self) -> None:
             if not self._can_create_patches(): return
+            if (
+                self.data.get('version_specific', False) and
+                not self.data.get(f'area_{self.builder.current_build_name}', None)
+            ): return
 
             area = self.data['area_%s' % self.builder.current_build_name]
 

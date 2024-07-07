@@ -292,7 +292,7 @@ class KamekBuilder:
         fasthack_content: list[str] = None
 
         if self._controller.config.fast_hack:
-            with open(f'{self._controller.cwd}/{self._fast_cpp_path}', 'r') as infile:
+            with open(f'{self._controller.cwd}/{self._fast_cpp_path}', 'r', encoding = 'utf-8') as infile:
                 fasthack_content = infile.read().replace('\r', '').split('\n')
 
 

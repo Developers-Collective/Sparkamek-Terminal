@@ -142,15 +142,15 @@ class AddressMapperController:
     log_simple = Signal(str, LogType, bool)
     log_complete = Signal(str, LogType, bool)
 
-    def __init__(self, cwd: str, project_path: str, base_version: str, version_ids: dict) -> None:
+    def __init__(self, cwd: str, project_path: str, base_version: str, base_version_id: str, version_ids: dict) -> None:
         super(AddressMapperController, self).__init__()
 
         self._project_path = project_path
         self._cwd = cwd
 
         self._base_version = base_version
-        self._version_ids = version_ids
-        self._reverse_version_ids = {v: k for k, v in version_ids.items()}
+        self._version_ids = {base_version: base_version_id} | version_ids
+        self._reverse_version_ids = {v: k for k, v in self._version_ids.items()}
 
 
     @property
@@ -173,7 +173,8 @@ class AddressMapperController:
             os.mkdir(f'{self._cwd}/processed')
 
         for x_id, txt_id in self._version_ids.items():
-            try: self._do_mapfile(f'kamek_{self._base_version}.x', f'kamek_{x_id}.x', mappers[txt_id])
+            dest = 'processed/kamek.x' if x_id == self._base_version else f'kamek_{x_id}.x'
+            try: self._do_mapfile(f'kamek_{self._base_version}.x', dest, mappers[txt_id])
             except FileNotFoundError: raise ProjectException(f'Unable to find "{LogType.Error.value}kamek_{self._base_version}.x{CLIConstants.Reset}" at "{self._cwd}"', LogType.Error)
             except KeyError: raise ProjectException(f'Unable to find version {LogType.Error.value}{txt_id}{CLIConstants.Reset} in {self._cwd}/tools/versions-nsmbw.txt', LogType.Error)
             except Exception as e: raise ProjectException(str(e), LogType.Error)
@@ -257,7 +258,7 @@ class AddressMapperController:
             if pos != -1:
                 oldoffs = line[pos+2:pos+12]
                 newoffs = mapper.remap(int(oldoffs, 16))
-                line = line.replace(oldoffs, str(newoffs))
+                line = line[:pos+2] + str(newoffs) + line[pos+12:]
 
             new.append(line + '\n')
 

@@ -42,7 +42,7 @@ class CompilerWorker:
             ({'chn': 'C'} if data.get('generateCN', None) else {})
         )
 
-        self._address_mapper_controller = AddressMapperController(self._cwd, self._project_path, self._base_version, self._version_ids)
+        self._address_mapper_controller = AddressMapperController(self._cwd, self._project_path, self._base_version, 'P1', self._version_ids)
         self._address_mapper_controller.log_simple.connect(self.log_simple.emit)
         self._address_mapper_controller.log_complete.connect(self.log_complete.emit)
 

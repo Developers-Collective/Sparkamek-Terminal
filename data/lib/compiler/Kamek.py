@@ -223,6 +223,9 @@ class KamekBuilder:
             for s_name, s_script in self._multi_build.items():
                 if s_name not in keys: continue
 
+                if s_name == self._controller.base_version:
+                    s_script = 'processed/kamek.x'
+
                 self.current_build_name = s_name
 
                 self._patches = []
@@ -915,6 +918,11 @@ class KamekController:
     @property
     def version_ids(self) -> dict:
         return self._version_ids
+
+
+    @property
+    def base_version(self) -> str:
+        return self._base_version
 
 
     def log_info(self, msg: str, invisible: bool = False) -> None:

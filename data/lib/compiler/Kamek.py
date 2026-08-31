@@ -223,8 +223,7 @@ class KamekBuilder:
             for s_name, s_script in self._multi_build.items():
                 if s_name not in keys: continue
 
-                if s_name == self._controller.base_version:
-                    s_script = 'processed/kamek.x'
+                s_script = os.path.join('processed', os.path.basename(s_script)).replace('\\', '/')
 
                 self.current_build_name = s_name
 

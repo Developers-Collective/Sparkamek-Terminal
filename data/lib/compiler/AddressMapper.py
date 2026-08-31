@@ -70,39 +70,69 @@ class AddressMapper:
         self._mappings.append(new_mapping)
 
 
-    def remap(self, input: int) -> int:
-        if self.base is not None:
-            input = self.base.remap(input)
+    def _inheritance_chain(self) -> list['AddressMapper']:
+        chain = []
+        mapper = self
 
+        while mapper is not None:
+            chain.append(mapper)
+            mapper = mapper.base
+
+        chain.reverse()
+        return chain
+
+
+    def _remap_local(self, input: int) -> int:
         for mapping in self._mappings:
             if mapping.start <= input <= mapping.end:
-                # print(f'[REMAP] {mapping.start:X}-{mapping.end:X}: {mapping.delta:X} => {input:X} => {input + mapping.delta:X}')
                 return input + mapping.delta
 
         return input
 
 
-    def demap(self, input: int) -> int:
+    def _demap_local(self, input: int) -> int:
         for mapping in self._mappings:
             if (mapping.start + mapping.delta) <= input <= (mapping.end + mapping.delta):
-                input = input - mapping.delta
-                break
+                return input - mapping.delta
 
-        if self.base is not None:
-            input = self.base.demap(input)
+        return input
+
+
+    def remap(self, input: int) -> int:
+        chain = self._inheritance_chain()
+
+        # Child mappings describe changes from their parent's unrelocated
+        # address space. Apply the inherited version changes first, then the
+        # root mapping to the final version address.
+        for mapper in chain[1:]:
+            input = mapper._remap_local(input)
+
+        if chain:
+            input = chain[0]._remap_local(input)
+
+        return input
+
+
+    def demap(self, input: int) -> int:
+        chain = self._inheritance_chain()
+
+        if chain:
+            input = chain[0]._demap_local(input)
+
+        for mapper in reversed(chain[1:]):
+            input = mapper._demap_local(input)
 
         return input
 
 
     def demap_reverse(self, input: int) -> int:
-        for mapping in self._mappings:
-            if mapping.start <= input <= mapping.end:
-                # print(f'[DEMAP] {mapping.start:X}-{mapping.end:X}: {mapping.delta:X} => {input:X} => {input + mapping.delta:X}')
-                input = input + mapping.delta
-                break
+        chain = self._inheritance_chain()
 
-        if self.base is not None:
-            input = self.base.demap_reverse(input)
+        if chain:
+            input = chain[0]._remap_local(input)
+
+        for mapper in reversed(chain[1:]):
+            input = mapper._remap_local(input)
 
         return input
 
@@ -173,7 +203,7 @@ class AddressMapperController:
             os.mkdir(f'{self._cwd}/processed')
 
         for x_id, txt_id in self._version_ids.items():
-            dest = 'processed/kamek.x' if x_id == self._base_version else f'kamek_{x_id}.x'
+            dest = f'processed/kamek_{x_id}.x'
             try: self._do_mapfile(f'kamek_{self._base_version}.x', dest, mappers[txt_id])
             except FileNotFoundError: raise ProjectException(f'Unable to find "{LogType.Error.value}kamek_{self._base_version}.x{CLIConstants.Reset}" at "{self._cwd}"', LogType.Error)
             except KeyError: raise ProjectException(f'Unable to find version {LogType.Error.value}{txt_id}{CLIConstants.Reset} in {self._cwd}/tools/versions-nsmbw.txt', LogType.Error)
@@ -266,26 +296,26 @@ class AddressMapperController:
             f.writelines(new)
 
 
-    def _work_on_hook(self, hook: dict, mapper: AddressMapper) -> None:
+    def _work_on_hook(self, hook: dict, source_hook: dict, mapper: AddressMapper) -> None:
         error = 'Missing hook type'
         try:
             t = hook['type']
 
             if t == 'patch':
                 error = 'Missing address'
-                hook[f'addr_{mapper.name}'] = mapper.remap(hook[f'addr_{self._base_version}'])
+                hook[f'addr_{mapper.name}'] = mapper.remap(source_hook[f'addr_{self._base_version}'])
 
             elif t == 'branch_insn' or t == 'add_func_pointer':
                 error = 'Missing source address'
-                hook[f'src_addr_{mapper.name}'] = mapper.remap(hook[f'src_addr_{self._base_version}'])
+                hook[f'src_addr_{mapper.name}'] = mapper.remap(source_hook[f'src_addr_{self._base_version}'])
 
-                if f'target_func_{self._base_version}' in hook:
+                if f'target_func_{self._base_version}' in source_hook:
                     error = 'Missing target function'
-                    hook[f'target_func_{mapper.name}'] = mapper.remap(hook[f'target_func_{self._base_version}'])
+                    hook[f'target_func_{mapper.name}'] = mapper.remap(source_hook[f'target_func_{self._base_version}'])
 
             elif t == 'nop_insn':
                 error = 'Missing area'
-                area = hook[f'area_{self._base_version}']
+                area = source_hook[f'area_{self._base_version}']
 
                 if isinstance(area, list):
                     start = mapper.remap(area[0])
@@ -337,17 +367,19 @@ class AddressMapperController:
             if exclude: hook['exclude'] = exclude
             if exclude_inherit: del hook['exclude_inherit']
 
+        source_hooks = [dict(hook) for hook in m.get('hooks', [])]
+
         for x_id, txt_id in self._version_ids.items():
             mapper = mappers[txt_id]
             if 'hooks' in m:
-                for hook in m['hooks']:
+                for hook, source_hook in zip(m['hooks'], source_hooks):
                     if x_id in hook.get('exclude', []):
                         continue
 
                     if hook.get('version_specific', False):
                         continue
 
-                    self._work_on_hook(hook, mapper)
+                    self._work_on_hook(hook, source_hook, mapper)
 
         with open(f'{self._cwd}/{dest}', 'w', encoding = 'utf-8') as f:
             f.write(yaml.dump(m))

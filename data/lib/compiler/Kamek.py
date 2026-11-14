@@ -53,6 +53,7 @@ class DyLinkCreator:
     R_PPC_ADDR16_HI = 5
     R_PPC_ADDR16_HA = 6
     R_PPC_REL24 = 10
+    R_PPC_REL32 = 26
 
     VALID_RELOCS = set([1, 4, 5, 6, 10])
 
@@ -77,7 +78,7 @@ class DyLinkCreator:
             raise ValueError('ELF already set')
 
         self.elf = elftools.elf.elffile.ELFFile(stream)
-        self.code = self.elf.get_section_by_name('.text').data()
+        self.code = bytearray(self.elf.get_section_by_name('.text').data())
 
         self._add_relocs(self.elf.get_section_by_name('.rela.text'))
 
@@ -99,7 +100,17 @@ class DyLinkCreator:
                 sym_values[sym_id] = (sym_value, sym_name)
             #print(hex(sym_value))
 
-            self.add_reloc(entry['r_info_type'], entry['r_offset'], sym_value + entry['r_addend'], sym_name)
+            reltype = entry['r_info_type']
+            target = sym_value + entry['r_addend']
+
+            if reltype == self.R_PPC_REL32:
+                if sym.entry['st_shndx'] != self.elf.get_section_index('.text'):
+                    raise ValueError('R_PPC_REL32 target is not in .text: %s' % sym_name)
+                struct.pack_into('>I', self.code, entry['r_offset'],
+                    (target - entry['r_offset']) & 0xFFFFFFFF)
+                continue
+
+            self.add_reloc(reltype, entry['r_offset'], target, sym_name)
 
     def add_reloc(self, reltype, addr, target, name = "UNKNOWN NAME") -> None:
         if reltype not in self.VALID_RELOCS:
@@ -478,7 +489,7 @@ class KamekBuilder:
                     as_command.append(d)
                     self._controller.log_info(f'Defined: {d}')
 
-                for i in self._config['include_dirs']:
+                for i in self._config['include_dirs'] + self.project.include_dirs:
                     cc_command.append('-I%s' % i)
                     #cc_command.append(i)
                     as_command.append('-I%s' % i)
@@ -500,7 +511,7 @@ class KamekBuilder:
                 for d in self._config.get('defines', []) + self.project.data.get('defines', []):
                     cc_command.append('-D%s' % d)
 
-                for i in self._config['include_dirs']:
+                for i in self._config['include_dirs'] + self.project.include_dirs:
                     cc_command.append('-I%s' % i)
 
             except Exception as e:
@@ -639,6 +650,7 @@ class KamekBuilder:
         ld_command.append('--no-demangle') # for debugging
         #ld_command.append('--verbose')
         ld_command += self._module_files
+        ld_command += self.project.libraries
 
         if self._controller.config.show_cmd:
             self._controller.log_info(str(ld_command))
@@ -846,6 +858,56 @@ class KamekProject:
 
         if not self.data.get('defines'): self.data['defines'] = []
         if not isinstance(self.data.get('defines'), list): self.data['defines'] = [self.data['defines']]
+
+        self.include_dirs = []
+        include_dirs = self.data.get('include_dirs', [])
+        if not isinstance(include_dirs, list):
+            raise ValueError('The project include_dirs field must be a list')
+
+        for include_dir in include_dirs:
+            if not isinstance(include_dir, str):
+                raise ValueError('Each project include directory must be a path')
+
+            if os.path.isabs(include_dir):
+                include_path = os.path.normpath(include_dir)
+            else:
+                include_path = os.path.normpath(os.path.join(
+                    os.path.dirname(self.project_path), include_dir
+                ))
+
+            if not os.path.isdir(include_path):
+                raise ValueError('Project include directory does not exist: %s' % include_path)
+
+            try:
+                include_path = os.path.relpath(include_path, self._controller.cwd)
+            except ValueError:
+                pass
+            self.include_dirs.append(include_path.replace('\\', '/'))
+
+        self.libraries = []
+        libraries = self.data.get('libraries', [])
+        if not isinstance(libraries, list):
+            raise ValueError('The project libraries field must be a list')
+
+        for library in libraries:
+            if not isinstance(library, str) or not library.lower().endswith('.a'):
+                raise ValueError('Each project library must be a path to a .a file')
+
+            if os.path.isabs(library):
+                library_path = os.path.normpath(library)
+            else:
+                library_path = os.path.normpath(os.path.join(
+                    os.path.dirname(self.project_path), library
+                ))
+
+            if not os.path.isfile(library_path):
+                raise ValueError('Project library does not exist: %s' % library_path)
+
+            try:
+                library_path = os.path.relpath(library_path, self._controller.cwd)
+            except ValueError:
+                pass
+            self.libraries.append(library_path.replace('\\', '/'))
 
         # load each module
         self.modules = []
